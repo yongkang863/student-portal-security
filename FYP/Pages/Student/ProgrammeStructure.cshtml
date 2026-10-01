@@ -1,0 +1,268 @@
+@page
+@model FYP.Pages.Student.ProgrammeStructureModel
+@{
+    ViewData["Title"] = "Programme Structure";
+    Layout = "_StudentLayout";
+}
+
+@* =========================================================================
+   1. PRINT STYLES & SCRIPTS
+   ========================================================================= *@
+<style>
+    @@media print {
+        /* Standardize Page */
+        @@page {
+            size: A4;
+            margin: 15mm;
+        }
+        /* 1. OVERRIDE LAYOUT RESTRICTIONS */
+        /* This prevents the layout's h-screen from cutting off multi-page documents */
+        html, body, main {
+            height: auto !important;
+            min-height: auto !important;
+            overflow: visible !important;
+            display: block !important;
+            background: white !important;
+            color: black !important;
+        }
+        /* 2. HIDE ALL UI ELEMENTS */
+        aside, header, #mobile-backdrop, .fixed, .pointer-events-none {
+            display: none !important;
+        }
+        /* 3. RESET MAIN CONTAINER PADDING */
+        .p-8, .max-w-7xl, .flex-1 {
+            padding: 0 !important;
+            margin: 0 !important;
+            max-width: 100% !important;
+            display: block !important;
+        }
+    }
+</style>
+
+<script>
+    function printPage() {
+        window.print();
+    }
+</script>
+
+@* =========================================================================
+   2. WEB VIEW (Hidden during print)
+   ========================================================================= *@
+<div class="print:hidden">
+
+    @* --- HEADER SECTION --- *@
+    <div class="animate-fade-in-up relative bg-black/40 backdrop-blur-xl rounded-2xl border border-purple-500/20 p-8 mb-8 overflow-hidden shadow-[0_8px_32px_0_rgba(88,28,135,0.3)]">
+        <div class="absolute -top-24 -right-24 w-64 h-64 rounded-full bg-fuchsia-600/10 blur-[80px] pointer-events-none"></div>
+        <div class="absolute -bottom-24 -left-24 w-64 h-64 rounded-full bg-violet-600/10 blur-[80px] pointer-events-none"></div>
+
+        <div class="relative z-10">
+            @if (Model.CurrentProgramme != null)
+            {
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-3xl font-bold text-white tracking-tight mb-2">
+                            @Model.CurrentProgramme.Name
+                        </h2>
+                        <div class="flex flex-wrap items-center gap-3 text-sm">
+                            <span class="px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 font-medium">
+                                @Model.CurrentProgramme.Code
+                            </span>
+                            <span class="px-3 py-1 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/30 text-fuchsia-300 font-medium">
+                                @(Model.CurrentProgramme.YearToComplete) Years Duration
+                            </span>
+                            <span class="px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-300 font-medium">
+                                Session: @(Model.UserSessionJoined?.ToString() ?? "Not Set")
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <button onclick="printPage()" class="flex items-center justify-center px-5 py-2.5 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white rounded-xl shadow-[0_0_15px_rgba(217,70,239,0.4)] hover:shadow-[0_0_25px_rgba(217,70,239,0.6)] hover:scale-105 transition-all font-semibold text-sm">
+                            <i class="fa-solid fa-print mr-2"></i> Print / Save PDF
+                        </button>
+                        <div class="hidden md:block text-right">
+                            <i class="fa-solid fa-layer-group text-5xl text-purple-500/20"></i>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-4">
+                    <p class="text-red-400">Programme information not found. Please contact administration.</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    @* --- STRUCTURE CONTENT --- *@
+    @if (Model.CurrentProgramme != null)
+    {
+        <div class="space-y-12">
+            @foreach (var yearEntry in Model.OrganizedStructure)
+            {
+                int year = yearEntry.Key;
+                var semesters = yearEntry.Value;
+
+                <div class="animate-fade-in-up" style="animation-delay: @(year * 100)ms">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="h-px flex-1 bg-gradient-to-r from-transparent via-purple-500/50 to-transparent"></div>
+                        <h3 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-fuchsia-300 uppercase tracking-widest">
+                            Year @year
+                        </h3>
+                        <div class="h-px flex-1 bg-gradient-to-r from-transparent via-purple-500/50 to-transparent"></div>
+                    </div>
+
+                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                        @foreach (var semEntry in semesters)
+                        {
+                            int semester = semEntry.Key;
+                            var courses = semEntry.Value;
+                            int totalCredits = courses.Sum(c => c.Course?.CreditHours ?? 0);
+
+                            <div class="bg-purple-950/20 backdrop-blur-md rounded-2xl border border-purple-500/20 flex flex-col group hover:border-fuchsia-500/30 transition-all duration-300 hover:shadow-[0_0_20px_rgba(168,85,247,0.15)] h-full">
+                                <div class="p-4 bg-black/20 border-b border-purple-500/10 flex justify-between items-center">
+                                    <span class="font-bold text-purple-200">
+                                        <i class="fa-regular fa-calendar-check mr-2 text-fuchsia-400"></i> Semester @semester
+                                    </span>
+                                    <span class="text-xs font-semibold px-2 py-1 rounded bg-purple-900/40 text-purple-300 border border-purple-500/20">
+                                        Total Credits: @totalCredits
+                                    </span>
+                                </div>
+
+                                <div class="p-4 flex-1 flex flex-col">
+                                    @if (courses.Count > 0)
+                                    {
+                                        <div class="space-y-3">
+                                            @foreach (var structure in courses)
+                                            {
+                                                <div class="p-3 rounded-xl bg-purple-500/5 border border-purple-500/10 hover:bg-purple-500/10 transition-colors group/item">
+                                                    <div class="flex justify-between items-start mb-1 gap-2">
+                                                        <span class="text-xs font-bold text-fuchsia-300 bg-fuchsia-500/10 px-1.5 py-0.5 rounded border border-fuchsia-500/20">
+                                                            @structure.Course?.Code
+                                                        </span>
+                                                        <span class="text-[10px] font-bold text-purple-300 bg-purple-900/50 px-2 py-0.5 rounded-full border border-purple-500/30 whitespace-nowrap">
+                                                            @(structure.Course?.CreditHours ?? 0) Credits
+                                                        </span>
+                                                    </div>
+                                                    <p class="text-sm text-purple-100 font-medium leading-tight mt-1">
+                                                        @structure.Course?.Title
+                                                    </p>
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="flex-1 flex flex-col items-center justify-center text-purple-400/40 py-8 min-h-[150px]">
+                                            <i class="fa-solid fa-mug-hot text-3xl mb-2"></i>
+                                            <p class="text-sm italic">No subjects scheduled</p>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@* =========================================================================
+   3. FORMAL PRINT VIEW (Hidden on screen, visible on print)
+   ========================================================================= *@
+<div class="hidden print:block w-full bg-white text-black font-serif">
+    
+    <div class="text-center border-b-2 border-black pb-4 mb-6">
+        <h1 class="text-3xl font-bold uppercase tracking-widest text-black">Ronnie University</h1>
+        <h2 class="text-xl font-semibold mt-1 text-black">Official Programme Structure</h2>
+    </div>
+
+    @if (Model.CurrentProgramme != null)
+    {
+        <table class="w-full text-left text-sm mb-8 text-black">
+            <tbody>
+                <tr>
+                    <td class="py-1 w-32 font-bold">Programme Name</td>
+                    <td class="py-1 w-4">:</td>
+                    <td class="py-1 uppercase">@Model.CurrentProgramme.Name</td>
+                </tr>
+                <tr>
+                    <td class="py-1 font-bold">Programme Code</td>
+                    <td>:</td>
+                    <td class="uppercase">@Model.CurrentProgramme.Code</td>
+                </tr>
+                <tr>
+                    <td class="py-1 font-bold">Duration</td>
+                    <td>:</td>
+                    <td>@Model.CurrentProgramme.YearToComplete Years</td>
+                </tr>
+                <tr>
+                    <td class="py-1 font-bold">Session Joined</td>
+                    <td>:</td>
+                    <td>@(Model.UserSessionJoined?.ToString() ?? "Not Set")</td>
+                </tr>
+            </tbody>
+        </table>
+
+        @foreach (var yearEntry in Model.OrganizedStructure)
+        {
+            int year = yearEntry.Key;
+            var semesters = yearEntry.Value;
+
+            <div class="mb-8" style="page-break-inside: avoid;">
+                <h3 class="text-lg font-bold bg-gray-200 text-black px-3 py-2 border border-black mb-4 uppercase">YEAR @year</h3>
+
+                @foreach (var semEntry in semesters)
+                {
+                    int semester = semEntry.Key;
+                    var courses = semEntry.Value;
+                    int totalCredits = courses.Sum(c => c.Course?.CreditHours ?? 0);
+
+                    <div class="mb-6 ml-4" style="page-break-inside: avoid;">
+                        <h4 class="font-bold text-md mb-2 text-black">Semester @semester</h4>
+                        
+                        @if (courses.Count > 0)
+                        {
+                            <table class="w-full text-sm border-collapse border border-gray-400 text-black">
+                                <thead>
+                                    <tr class="bg-gray-100">
+                                        <th class="border border-gray-400 px-3 py-2 w-1/4 text-left">Course Code</th>
+                                        <th class="border border-gray-400 px-3 py-2 w-2/4 text-left">Course Title</th>
+                                        <th class="border border-gray-400 px-3 py-2 w-1/4 text-center">Credit Hours</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var structure in courses)
+                                    {
+                                        <tr>
+                                            <td class="border border-gray-400 px-3 py-2">@structure.Course?.Code</td>
+                                            <td class="border border-gray-400 px-3 py-2">@structure.Course?.Title</td>
+                                            <td class="border border-gray-400 px-3 py-2 text-center">@(structure.Course?.CreditHours ?? 0)</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                                <tfoot>
+                                    <tr class="bg-gray-50 font-bold">
+                                        <td colspan="2" class="border border-gray-400 px-3 py-2 text-right">Total Credits:</td>
+                                        <td class="border border-gray-400 px-3 py-2 text-center">@totalCredits</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        }
+                        else
+                        {
+                            <p class="text-gray-500 italic text-sm border border-gray-200 p-2">No courses scheduled for this semester.</p>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    }
+
+    <div class="mt-12 text-center text-xs text-gray-500 border-t border-gray-300 pt-4" style="page-break-inside: avoid;">
+        <p>Generated by Ronnie University Student Portal on @DateTime.Now.ToString("dd MMM yyyy")</p>
+        <p>This is a computer-generated document. No signature is required.</p>
+    </div>
+</div>

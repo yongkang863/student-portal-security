@@ -1,0 +1,417 @@
+@page
+@model FYP.Pages.Admin.Academic.Timetable.IndexModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Timetable Management";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+<style>
+    .ts-control { border-color: #cbd5e1 !important; border-radius: 0.5rem !important; padding: 0.5rem 0.75rem !important; font-size: 0.875rem !important; background-color: #fff !important; }
+    .ts-control.focus { border-color: #3b82f6 !important; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5) !important; }
+</style>
+
+<div class="space-y-6">
+
+    <div>
+        <h1 class="text-2xl font-bold font-serif text-slate-800">Timetable Management</h1>
+        <p class="text-sm text-slate-500 mt-1">Schedule and manage weekly class itineraries.</p>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="p-4 bg-green-50 text-green-700 rounded-xl border border-green-200 flex items-center shadow-sm">
+            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            @Model.SuccessMessage
+        </div>
+    }
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="p-4 bg-red-50 text-red-700 rounded-xl border border-red-200 flex items-start shadow-sm">
+            <svg class="w-5 h-5 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span class="text-sm font-medium">@Model.ErrorMessage</span>
+        </div>
+    }
+
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <form method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Programme</label>
+                <select asp-for="ProgId" id="ProgId" asp-items="Model.ProgrammeOptions" class="w-full px-4 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50" required>
+                    <option value="">-- Select --</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Session</label>
+                <select asp-for="SessionJoined" id="SessionJoined" asp-items="Model.SessionOptions" class="w-full px-4 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50" required>
+                    <option value="">-- Select --</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Tutorial Group</label>
+                <select asp-for="TutorialGroup" id="TutorialGroup" class="w-full px-4 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50" required>
+                    <option value="">-- Select Programme First --</option>
+                </select>
+            </div>
+            <div>
+                <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-all text-sm h-[38px]">
+                    Load Timetable
+                </button>
+            </div>
+        </form>
+    </div>
+
+    @if (Model.HasSearched && Model.CurrentProgramme != null)
+    {
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            
+            <div class="bg-slate-800 p-5 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <h2 class="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+                        <i class="fa-solid fa-calendar-days text-blue-400"></i>
+                        Weekly Schedule
+                    </h2>
+                    <p class="text-slate-300 text-sm mt-0.5">@Model.CurrentProgramme.Code • Session @Model.SessionJoined • Grp: @Model.TutorialGroup</p>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2 bg-slate-900/50 p-1.5 rounded-lg border border-slate-700">
+                        <a href="?ProgId=@Model.ProgId&SessionJoined=@Model.SessionJoined&TutorialGroup=@Model.TutorialGroup&SelectedDate=@(Model.StartOfWeek.AddDays(-7).ToString("yyyy-MM-dd"))" 
+                           class="w-7 h-7 flex items-center justify-center rounded bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors" title="Previous Week">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                        </a>
+                        <form method="get" class="m-0 flex relative">
+                            <input type="hidden" name="ProgId" value="@Model.ProgId" />
+                            <input type="hidden" name="SessionJoined" value="@Model.SessionJoined" />
+                            <input type="hidden" name="TutorialGroup" value="@Model.TutorialGroup" />
+                            <input type="date" name="SelectedDate" value="@((Model.SelectedDate ?? DateTime.Today).ToString("yyyy-MM-dd"))" onchange="this.form.submit()" class="bg-transparent border-none text-white text-sm font-medium focus:ring-0 cursor-pointer [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:opacity-70 hover:[&::-webkit-calendar-picker-indicator]:opacity-100 py-0" />
+                        </form>
+                        <a href="?ProgId=@Model.ProgId&SessionJoined=@Model.SessionJoined&TutorialGroup=@Model.TutorialGroup&SelectedDate=@(Model.StartOfWeek.AddDays(7).ToString("yyyy-MM-dd"))" 
+                           class="w-7 h-7 flex items-center justify-center rounded bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors" title="Next Week">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </a>
+                    </div>
+
+                    <button type="button" onclick="openModal('addModal')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-all text-sm flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        Add Slot
+                    </button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto p-4 bg-slate-50">
+                <div class="min-w-[900px] border border-slate-300 rounded-xl bg-white overflow-hidden relative shadow-inner">
+
+                    <div class="flex border-b border-slate-300 bg-slate-100 sticky top-0 z-20">
+                        <div class="w-16 flex-shrink-0 border-r border-slate-300"></div>
+                        @for (int i = 0; i < 7; i++)
+                        {
+                            var currentDay = Model.StartOfWeek.AddDays(i);
+                            bool isToday = currentDay == DateOnly.FromDateTime(DateTime.Today);
+                            <div class="flex-1 text-center py-2.5 border-r border-slate-200 last:border-r-0 @(isToday ? "bg-blue-50/50" : "")">
+                                <div class="text-[11px] uppercase font-bold tracking-wider @(isToday ? "text-blue-600" : "text-slate-500")">@currentDay.ToString("ddd")</div>
+                                <div class="text-sm font-bold @(isToday ? "text-blue-800" : "text-slate-700")">@currentDay.ToString("dd MMM")</div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="flex relative" style="height: 1440px;">
+                        <div class="w-16 flex-shrink-0 border-r border-slate-300 relative z-10 bg-slate-50">
+                            @for (int i = 0; i <= 12; i++)
+                            {
+                                int hour = i + 8;
+                                <div class="absolute w-full text-right pr-2" style="top: @(i * 120 - 8)px;"><span class="text-[10px] text-slate-400 font-bold">@(hour > 12 ? $"{hour - 12} PM" : (hour == 12 ? "12 PM" : $"{hour} AM"))</span></div>
+                            }
+                        </div>
+
+                        <div class="flex-1 flex relative">
+                            <div class="absolute inset-0 pointer-events-none z-0">
+                                @for (int i = 0; i <= 12; i++)
+                                {
+                                    <div class="absolute w-full border-t border-slate-100" style="top: @(i * 120)px;"></div>
+                                    @if(i < 12) { <div class="absolute w-full border-t border-slate-100 border-dashed" style="top: @(i * 120 + 60)px;"></div> }
+                                }
+                            </div>
+
+                            @for (int dayOffset = 0; dayOffset < 7; dayOffset++)
+                            {
+                                var currentDay = Model.StartOfWeek.AddDays(dayOffset);
+                                var dailySlots = Model.Slots.Where(s => s.Date == currentDay).ToList();
+                                bool isToday = currentDay == DateOnly.FromDateTime(DateTime.Today);
+
+                                <div class="flex-1 border-r border-slate-200 last:border-r-0 relative z-10 @(isToday ? "bg-blue-50/30" : "")">
+                                    @foreach (var slot in dailySlots)
+                                    {
+                                        int startMinutes = (slot.StartTime.Hour * 60 + slot.StartTime.Minute) - 480;
+                                        int durationMinutes = (slot.EndTime.Hour * 60 + slot.EndTime.Minute) - (slot.StartTime.Hour * 60 + slot.StartTime.Minute);
+                                        
+                                        if (startMinutes < 0) startMinutes = 0;
+                                        if (startMinutes + durationMinutes > 720) durationMinutes = 720 - startMinutes;
+
+                                        string lecturerName = slot.StaffId.HasValue && Model.StaffNames.ContainsKey(slot.StaffId.Value) ? Model.StaffNames[slot.StaffId.Value] : "TBA";
+
+                                        <div onclick="openEditModal(@slot.Id, @slot.CourseId, '@slot.ClassType', '@slot.Date.ToString("yyyy-MM-dd")', '@slot.StartTime.ToString("HH:mm")', '@slot.EndTime.ToString("HH:mm")', '@(slot.StaffId?.ToString() ?? "")', '@(slot.VenueId?.ToString() ?? "")')" 
+                                             class="absolute w-[calc(100%-8px)] left-[4px] rounded-lg border p-2 flex flex-col overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer bg-white border-indigo-200 hover:border-indigo-500 hover:ring-2 hover:ring-indigo-200 z-10 group"
+                                             style="top: @(startMinutes * 2)px; height: @(durationMinutes * 2)px;" title="Click to Edit">
+                                            
+                                            <div class="text-[11px] font-bold text-indigo-800 truncate">@(slot.Course?.Code)</div>
+                                            <div class="text-[10px] text-slate-600 font-medium leading-tight mt-0.5 line-clamp-2">@(slot.Course?.Title)</div>
+                                            
+                                            @if (durationMinutes >= 60)
+                                            {
+                                                <div class="text-[9px] text-slate-500 font-bold uppercase tracking-wider mt-1 bg-slate-100 inline-block px-1 rounded">@slot.ClassType</div>
+                                                <div class="text-[10px] text-slate-700 font-medium mt-1 truncate"><i class="fa-regular fa-clock mr-1 text-slate-400"></i>@slot.StartTime.ToString("hh:mm tt")</div>
+                                                <div class="mt-auto pt-1 border-t border-slate-100 flex flex-col gap-0.5 text-[9px] text-slate-500">
+                                                    <span class="truncate"><i class="fa-solid fa-location-dot mr-1"></i>@(slot.Venue?.Classroom ?? "TBA")</span>
+                                                    <span class="truncate"><i class="fa-solid fa-user mr-1"></i>@lecturerName</span>
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@if (Model.HasSearched)
+{
+    <div id="addModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden transform scale-95 opacity-0 transition-all duration-300 addModal-panel">
+            
+            <div class="bg-slate-50 border-b border-slate-200 px-6 py-4 flex justify-between items-center">
+                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    Schedule New Class
+                </h3>
+                <button type="button" onclick="closeModal('addModal')" class="text-slate-400 hover:text-slate-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <form method="post" asp-page-handler="AddSlot" class="px-6 py-4 space-y-4">
+                <input type="hidden" name="ProgId" value="@Model.ProgId" />
+                <input type="hidden" name="SessionJoined" value="@Model.SessionJoined" />
+                <input type="hidden" name="TutorialGroup" value="@Model.TutorialGroup" />
+                <input type="hidden" name="SelectedDate" value="@((Model.SelectedDate ?? DateTime.Today).ToString("yyyy-MM-dd"))" />
+
+                @if(!Model.CourseOptions.Any()) {
+                    <div class="p-3 bg-orange-50 text-orange-800 text-sm rounded border border-orange-200"><strong>Warning:</strong> No courses found in structure.</div>
+                }
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Course (Searchable)</label>
+                    <select asp-for="Input.CourseId" asp-items="Model.CourseOptions" class="searchable-select w-full" required autocomplete="off" placeholder="Type to search..."><option value="">Search Course...</option></select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Class Type</label>
+                        <select asp-for="Input.ClassType" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm" required>
+                            <option value="Lecture">Lecture</option><option value="Tutorial">Tutorial</option><option value="Lab">Lab</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Starting Date</label>
+                        <input asp-for="Input.Date" type="date" value="@((Model.SelectedDate ?? DateTime.Today).ToString("yyyy-MM-dd"))" min="@Model.StartOfWeek.ToString("yyyy-MM-dd")" max="@Model.EndOfWeek.ToString("yyyy-MM-dd")" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm" required />
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 border-t border-slate-100 pt-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Start Time</label>
+                        <input asp-for="Input.StartTime" type="time" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm" required />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">End Time</label>
+                        <input asp-for="Input.EndTime" type="time" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm" required />
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-100 pt-4">
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Recurrence (Weeks)</label>
+                    <input asp-for="Input.NumberOfWeeks" type="number" min="1" max="14" value="1" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm" required />
+                    <p class="text-[10px] text-slate-500 mt-1">Select up to 14 weeks. This automatically books the exact slot across consecutive weeks.</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 border-t border-slate-100 pt-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Lecturer / Staff</label>
+                        <select asp-for="Input.StaffId" asp-items="Model.StaffOptions" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"><option value="">-- TBA --</option></select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Venue & Classroom</label>
+                        <select asp-for="Input.VenueId" asp-items="Model.VenueOptions" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"><option value="">-- TBA --</option></select>
+                    </div>
+                </div>
+
+                <div class="pt-4 flex justify-end gap-2">
+                    <button type="button" onclick="closeModal('addModal')" class="px-4 py-2 text-slate-600 font-bold hover:bg-slate-100 rounded-lg transition-colors text-sm">Cancel</button>
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow transition-colors text-sm">Save Slot(s)</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="editModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden transform scale-95 opacity-0 transition-all duration-300 editModal-panel">
+            
+            <div class="bg-slate-50 border-b border-slate-200 px-6 py-4 flex justify-between items-center">
+                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                    Edit Single Class Slot
+                </h3>
+                <button type="button" onclick="closeModal('editModal')" class="text-slate-400 hover:text-slate-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <form method="post" asp-page-handler="EditSlot" class="px-6 py-4 space-y-4">
+                <input type="hidden" name="ProgId" value="@Model.ProgId" />
+                <input type="hidden" name="SessionJoined" value="@Model.SessionJoined" />
+                <input type="hidden" name="TutorialGroup" value="@Model.TutorialGroup" />
+                <input type="hidden" name="SelectedDate" value="@((Model.SelectedDate ?? DateTime.Today).ToString("yyyy-MM-dd"))" />
+                
+                <input type="hidden" asp-for="EditInput.SlotId" id="editSlotId" />
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Course (Searchable)</label>
+                    <select asp-for="EditInput.CourseId" id="editCourseId" asp-items="Model.CourseOptions" class="searchable-select w-full" required autocomplete="off" placeholder="Type to search..."><option value="">Search Course...</option></select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Class Type</label>
+                        <select asp-for="EditInput.ClassType" id="editClassType" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm" required>
+                            <option value="Lecture">Lecture</option><option value="Tutorial">Tutorial</option><option value="Lab">Lab</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Date</label>
+                        <input asp-for="EditInput.Date" id="editDate" type="date" min="@Model.StartOfWeek.ToString("yyyy-MM-dd")" max="@Model.EndOfWeek.ToString("yyyy-MM-dd")" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm" required />
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 border-t border-slate-100 pt-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Start Time</label>
+                        <input asp-for="EditInput.StartTime" id="editStartTime" type="time" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm" required />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">End Time</label>
+                        <input asp-for="EditInput.EndTime" id="editEndTime" type="time" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm" required />
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 border-t border-slate-100 pt-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Lecturer / Staff</label>
+                        <select asp-for="EditInput.StaffId" id="editStaffId" asp-items="Model.StaffOptions" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"><option value="">-- TBA --</option></select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Venue & Classroom</label>
+                        <select asp-for="EditInput.VenueId" id="editVenueId" asp-items="Model.VenueOptions" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"><option value="">-- TBA --</option></select>
+                    </div>
+                </div>
+
+                <div class="pt-4 flex justify-between items-center">
+                    <button type="submit" asp-page-handler="DeleteSlot" onclick="document.getElementById('deleteSlotIdField').value = document.getElementById('editSlotId').value; return confirm('Are you sure you want to permanently delete this slot?');" class="px-4 py-2 text-red-600 bg-red-50 hover:bg-red-100 font-bold rounded-lg transition-colors text-sm">Delete Slot</button>
+                    <div class="flex gap-2">
+                        <button type="button" onclick="closeModal('editModal')" class="px-4 py-2 text-slate-600 font-bold hover:bg-slate-100 rounded-lg transition-colors text-sm">Cancel</button>
+                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg shadow transition-colors text-sm">Update Slot</button>
+                    </div>
+                </div>
+            </form>
+            <form method="post" asp-page-handler="DeleteSlot" id="helperDeleteForm" class="hidden">
+                <input type="hidden" name="ProgId" value="@Model.ProgId" />
+                <input type="hidden" name="SessionJoined" value="@Model.SessionJoined" />
+                <input type="hidden" name="TutorialGroup" value="@Model.TutorialGroup" />
+                <input type="hidden" name="SelectedDate" value="@((Model.SelectedDate ?? DateTime.Today).ToString("yyyy-MM-dd"))" />
+                <input type="hidden" name="deleteSlotId" id="deleteSlotIdField" />
+            </form>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+    <script>
+        // --- Dynamic Tutorial Group Logic ---
+        const cohortGroups = @Html.Raw(Model.CohortGroupsJson);
+        const progSelect = document.getElementById('ProgId');
+        const sessionSelect = document.getElementById('SessionJoined');
+        const groupSelect = document.getElementById('TutorialGroup');
+        const currentGroup = '@Model.TutorialGroup';
+
+        function updateGroups() {
+            const key = progSelect.value + '_' + sessionSelect.value;
+            groupSelect.innerHTML = '<option value="">-- Select Group --</option>';
+            
+            if (cohortGroups[key]) {
+                cohortGroups[key].forEach(g => {
+                    const opt = document.createElement('option');
+                    opt.value = g;
+                    opt.text = g;
+                    if (g === currentGroup) opt.selected = true;
+                    groupSelect.add(opt);
+                });
+            } else {
+                 groupSelect.innerHTML = '<option value="">-- No Groups Found --</option>';
+            }
+        }
+        
+        progSelect.addEventListener('change', updateGroups);
+        sessionSelect.addEventListener('change', updateGroups);
+        updateGroups();
+
+        // --- Tom Select Initialization ---
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.searchable-select').forEach((el) => {
+                new TomSelect(el, { create: false, sortField: { field: "text", direction: "asc" }, maxOptions: 50 });
+            });
+        });
+
+        // --- Modal Logic ---
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            const panel = modal.querySelector('.' + modalId + '-panel');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                panel.classList.remove('opacity-0', 'scale-95');
+            }, 10);
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            const panel = modal.querySelector('.' + modalId + '-panel');
+            modal.classList.add('opacity-0');
+            panel.classList.add('opacity-0', 'scale-95');
+            setTimeout(() => {
+                modal.classList.remove('flex');
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        function openEditModal(slotId, courseId, classType, dateStr, startStr, endStr, staffId, venueId) {
+            document.getElementById('editSlotId').value = slotId;
+            
+            const courseTom = document.getElementById('editCourseId').tomselect;
+            if(courseTom) courseTom.setValue(courseId);
+
+            document.getElementById('editClassType').value = classType;
+            document.getElementById('editDate').value = dateStr;
+            document.getElementById('editStartTime').value = startStr;
+            document.getElementById('editEndTime').value = endStr;
+            document.getElementById('editStaffId').value = staffId || '';
+            document.getElementById('editVenueId').value = venueId || '';
+
+            openModal('editModal');
+        }
+    </script>
+}

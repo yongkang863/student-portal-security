@@ -1,0 +1,250 @@
+@page
+@model FYP.Pages.Admin.LeavesModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Manage Leave Requests";
+}
+
+<div class="max-w-7xl mx-auto py-8">
+
+    <div class="flex justify-between items-center mb-8 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+        <div>
+            <h2 class="text-2xl font-extrabold text-slate-800">Pending Leave Requests</h2>
+            <p class="text-slate-500 text-sm mt-1">Review absence applications across the university.</p>
+        </div>
+        <div class="p-3 bg-blue-50 text-blue-600 rounded-xl">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="mb-6 p-4 bg-green-50 border border-green-200 text-green-700 rounded-xl flex items-center gap-3">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            <span class="font-semibold">@TempData["SuccessMessage"]</span>
+        </div>
+    }
+
+    <div class="flex gap-2 mb-6 border-b border-slate-200 pb-px">
+        <button onclick="switchTab('students')" id="tab-students" class="px-6 py-3 text-sm font-bold rounded-t-xl transition-all border-b-2 border-blue-600 text-blue-600 bg-white">
+            Student Requests
+            <span class="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs">@Model.PendingStudentLeaves.Count</span>
+        </button>
+        <button onclick="switchTab('staff')" id="tab-staff" class="px-6 py-3 text-sm font-bold rounded-t-xl transition-all border-b-2 border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50">
+            Staff Requests
+            <span class="ml-2 px-2 py-0.5 bg-slate-200 text-slate-600 rounded-full text-xs">@Model.PendingStaffLeaves.Count</span>
+        </button>
+    </div>
+
+    <div id="section-students" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden block">
+        @if (Model.PendingStudentLeaves.Any())
+        {
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left">
+                    <thead class="bg-slate-50 text-slate-500">
+                        <tr>
+                            <th class="px-6 py-4 font-semibold">Student Info</th>
+                            <th class="px-6 py-4 font-semibold">Leave Details</th>
+                            <th class="px-6 py-4 font-semibold">Dates</th>
+                            <th class="px-6 py-4 font-semibold">Document</th>
+                            <th class="px-6 py-4 font-semibold text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @foreach (var leave in Model.PendingStudentLeaves)
+                        {
+                            <tr class="hover:bg-slate-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="font-bold text-slate-800">@(leave.Student?.FullName ?? "Unknown User")</div>
+                                    <div class="text-xs text-slate-500 mt-0.5">ID: @(leave.Student?.UserId?.ToString() ?? "N/A")</div>
+                                </td>
+                                <td class="px-6 py-4 max-w-xs">
+                                    <span class="inline-block px-2 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wider rounded border border-slate-200 mb-1">@leave.LeaveType</span>
+                                    <p class="text-xs text-slate-600 line-clamp-1">@(string.IsNullOrEmpty(leave.Reason) ? "No reason provided." : leave.Reason)</p>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="font-medium text-slate-700">@leave.StartDate.ToString("dd MMM yyyy")</div>
+                                    <div class="text-xs text-slate-400 my-0.5">to</div>
+                                    <div class="font-medium text-slate-700 mb-1">@leave.EndDate.ToString("dd MMM yyyy")</div>
+                                    <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">@leave.LeaveTotal Days</span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    @if (!string.IsNullOrEmpty(leave.Document))
+                                    {
+                                        <a href="@leave.Document" target="_blank" class="text-blue-600 hover:text-blue-800 font-medium text-xs">View File</a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-xs text-slate-400 italic">No document</span>
+                                    }
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <div class="flex justify-end gap-2">
+                                        <a href="/Admin/LeaveDetail?id=@leave.Id&type=student" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-lg transition-colors border border-slate-200 text-xs">View</a>
+
+                                        <form method="post" asp-page-handler="ApproveStudent" asp-route-id="@leave.Id" class="inline">
+                                            <button type="submit" class="px-3 py-2 bg-green-50 hover:bg-green-600 hover:text-white text-green-700 font-bold rounded-lg transition-colors border border-green-200 hover:border-green-600 text-xs">Approve</button>
+                                        </form>
+
+                                        <button type="button" onclick="openRejectModal(@leave.Id, 'Student')" class="px-3 py-2 bg-red-50 hover:bg-red-600 hover:text-white text-red-700 font-bold rounded-lg transition-colors border border-red-200 hover:border-red-600 text-xs">Reject</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="p-12 text-center text-slate-500">No pending student requests.</div>
+        }
+    </div>
+
+    <div id="section-staff" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hidden">
+        @if (Model.PendingStaffLeaves.Any())
+        {
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left">
+                    <thead class="bg-slate-50 text-slate-500">
+                        <tr>
+                            <th class="px-6 py-4 font-semibold">Staff Info</th>
+                            <th class="px-6 py-4 font-semibold">Leave Details</th>
+                            <th class="px-6 py-4 font-semibold">Dates</th>
+                            <th class="px-6 py-4 font-semibold">Document</th>
+                            <th class="px-6 py-4 font-semibold text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @foreach (var leave in Model.PendingStaffLeaves)
+                        {
+                            <tr class="hover:bg-slate-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="font-bold text-slate-800">@(leave.Staff?.FullName ?? "Unknown Staff")</div>
+                                    <div class="text-xs text-slate-500 mt-0.5">ID: @(leave.Staff?.UserId?.ToString() ?? "N/A")</div>
+                                </td>
+                                <td class="px-6 py-4 max-w-xs">
+                                    <span class="inline-block px-2 py-1 bg-purple-50 text-purple-700 text-[10px] font-bold uppercase tracking-wider rounded border border-purple-200 mb-1">@leave.LeaveType</span>
+                                    <p class="text-xs text-slate-600 line-clamp-1">@(string.IsNullOrEmpty(leave.Reason) ? "No reason provided." : leave.Reason)</p>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="font-medium text-slate-700">@leave.StartDate.ToString("dd MMM yyyy")</div>
+                                    <div class="text-xs text-slate-400 my-0.5">to</div>
+                                    <div class="font-medium text-slate-700 mb-1">@leave.EndDate.ToString("dd MMM yyyy")</div>
+                                    <span class="text-[10px] font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full">@leave.LeaveTotal Days</span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    @if (!string.IsNullOrEmpty(leave.Document))
+                                    {
+                                        <a href="@leave.Document" target="_blank" class="text-blue-600 hover:text-blue-800 font-medium text-xs">View File</a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-xs text-slate-400 italic">No document</span>
+                                    }
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <div class="flex justify-end gap-2">
+                                        <a href="/Admin/LeaveDetail?id=@leave.Id&type=staff" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-lg transition-colors border border-slate-200 text-xs">View</a>
+
+                                        <form method="post" asp-page-handler="ApproveStaff" asp-route-id="@leave.Id" class="inline">
+                                            <button type="submit" class="px-3 py-2 bg-green-50 hover:bg-green-600 hover:text-white text-green-700 font-bold rounded-lg transition-colors border border-green-200 hover:border-green-600 text-xs">Approve</button>
+                                        </form>
+
+                                        <button type="button" onclick="openRejectModal(@leave.Id, 'Staff')" class="px-3 py-2 bg-red-50 hover:bg-red-600 hover:text-white text-red-700 font-bold rounded-lg transition-colors border border-red-200 hover:border-red-600 text-xs">Reject</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="p-12 text-center text-slate-500">No pending staff requests.</div>
+        }
+    </div>
+
+</div>
+
+<div id="rejectModal" class="fixed inset-0 bg-slate-900 bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+            <h3 class="text-lg font-bold text-slate-800">Reject Leave Request</h3>
+            <button onclick="closeRejectModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+
+        <form id="rejectForm" method="post">
+            <div class="px-6 py-4">
+                <input type="hidden" id="rejectLeaveId" name="id" value="" />
+
+                <label for="remark" class="block text-sm font-medium text-slate-700 mb-2">Reason for Rejection</label>
+                <textarea id="remark" name="remark" rows="3" required class="w-full rounded-lg border-slate-300 border p-3 text-sm focus:ring-red-500 focus:border-red-500 outline-none transition-colors" placeholder="e.g., Exceeded leave quota, insufficient proof, etc..."></textarea>
+                <p class="text-xs text-slate-500 mt-2">This remark will be included in the email sent to the user.</p>
+            </div>
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+                <button type="button" onclick="closeRejectModal()" class="px-4 py-2 text-slate-600 font-medium hover:bg-slate-200 rounded-lg transition-colors">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition-colors">Confirm Rejection</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function switchTab(tabName) {
+            const secStudents = document.getElementById('section-students');
+            const secStaff = document.getElementById('section-staff');
+            const btnStudents = document.getElementById('tab-students');
+            const btnStaff = document.getElementById('tab-staff');
+
+            const unselectedClasses = "border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50 bg-transparent".split(" ");
+            const selectedClasses = "border-blue-600 text-blue-600 bg-white".split(" ");
+
+            if (tabName === 'students') {
+                secStudents.classList.remove('hidden');
+                secStudents.classList.add('block');
+                secStaff.classList.remove('block');
+                secStaff.classList.add('hidden');
+
+                btnStudents.classList.add(...selectedClasses);
+                btnStudents.classList.remove(...unselectedClasses);
+
+                btnStaff.classList.remove(...selectedClasses);
+                btnStaff.classList.add(...unselectedClasses);
+            } else {
+                secStaff.classList.remove('hidden');
+                secStaff.classList.add('block');
+                secStudents.classList.remove('block');
+                secStudents.classList.add('hidden');
+
+                btnStaff.classList.add(...selectedClasses);
+                btnStaff.classList.remove(...unselectedClasses);
+
+                btnStudents.classList.remove(...selectedClasses);
+                btnStudents.classList.add(...unselectedClasses);
+            }
+        }
+
+        function openRejectModal(id, userType) {
+            document.getElementById('rejectLeaveId').value = id;
+
+            const form = document.getElementById('rejectForm');
+            form.action = '?handler=Reject' + userType;
+
+            const modal = document.getElementById('rejectModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeRejectModal() {
+            const modal = document.getElementById('rejectModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.getElementById('remark').value = '';
+        }
+    </script>
+}

@@ -1,0 +1,180 @@
+@page
+@model FYP.Pages.Admin.Academic.Structure.ManageModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Manage Structure Editor";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+<style>
+    /* Clean overrides to make Tom Select match Tailwind styling */
+    .ts-control { border-color: #cbd5e1 !important; border-radius: 0.5rem !important; padding: 0.5rem 0.75rem !important; font-size: 0.75rem !important; background-color: #f8fafc !important; }
+    .ts-control.focus { border-color: #3b82f6 !important; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5) !important; }
+    .ts-dropdown { font-size: 0.75rem !important; border-radius: 0.5rem !important; }
+</style>
+
+<div class="space-y-6">
+
+    <div class="flex justify-between items-end">
+        <div>
+            <h1 class="text-2xl font-bold font-serif text-slate-800">Structure Editor</h1>
+            <p class="text-sm text-slate-500 mt-1">Configure curriculum timeline by assigning courses to semesters.</p>
+        </div>
+        <a href="/Admin/Academic/Structure/Index?ProgId=@Model.ProgId&SessionJoined=@Model.SessionJoined" class="text-sm font-medium text-slate-500 hover:text-blue-600 hover:underline transition-colors flex items-center">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Back to View
+        </a>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="p-4 bg-green-50 text-green-700 rounded-xl border border-green-200 flex items-center shadow-sm">
+            <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            @Model.SuccessMessage
+        </div>
+    }
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="p-4 bg-red-50 text-red-700 rounded-xl border border-red-200 flex items-center shadow-sm">
+            <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            @Model.ErrorMessage
+        </div>
+    }
+
+    @if (Model.CurrentProgramme != null)
+    {
+        <div class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden mt-6">
+            
+            <div class="bg-slate-800 p-6 text-white flex flex-col md:flex-row justify-between md:items-center gap-4">
+                <div>
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded">@Model.CurrentProgramme.Code</span>
+                        <span class="border border-slate-500 text-slate-300 text-xs font-bold px-2 py-1 rounded">Session @Model.SessionJoined</span>
+                    </div>
+                    <h2 class="text-xl font-bold">@Model.CurrentProgramme.Name</h2>
+                </div>
+            </div>
+
+            <div class="p-6">
+                <div class="space-y-10">
+                    @foreach (var yearEntry in Model.OrganizedStructure)
+                    {
+                        int year = yearEntry.Key;
+                        var semesters = yearEntry.Value;
+
+                        <div class="relative">
+                            <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                                <div class="w-full border-t border-slate-200"></div>
+                            </div>
+                            <div class="relative flex justify-center">
+                                <span class="bg-white px-4 text-sm font-bold text-slate-500 uppercase tracking-widest bg-slate-50 border border-slate-200 rounded-full py-1">
+                                    Year @year
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mt-6">
+                            @foreach (var semEntry in semesters)
+                            {
+                                int semester = semEntry.Key;
+                                var courses = semEntry.Value;
+                                int totalCredits = courses.Sum(c => c.Course?.CreditHours ?? 0);
+
+                                <div class="bg-slate-50 rounded-xl border border-slate-200 flex flex-col h-full shadow-sm">
+                                    
+                                    <div class="p-4 bg-slate-100 border-b border-slate-200 flex justify-between items-center rounded-t-xl">
+                                        <span class="font-bold text-slate-700">
+                                            Semester @semester
+                                        </span>
+                                        <span class="text-xs font-semibold px-2.5 py-1 rounded bg-white text-slate-600 border border-slate-200 shadow-sm">
+                                            @totalCredits Credits
+                                        </span>
+                                    </div>
+
+                                    <div class="p-4 flex-1 flex flex-col gap-2 min-h-[120px]">
+                                        @if (courses.Count > 0)
+                                        {
+                                            @foreach (var structure in courses)
+                                            {
+                                                <div class="p-3 rounded-lg bg-white border border-slate-200 shadow-sm flex justify-between items-start group transition-all hover:border-blue-300">
+                                                    <div class="pr-2">
+                                                        <div class="flex items-center gap-2 mb-1">
+                                                            <span class="text-xs font-bold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">
+                                                                @structure.Course?.Code
+                                                            </span>
+                                                            <span class="text-[10px] text-slate-400 font-medium bg-slate-100 px-1.5 py-0.5 rounded">@structure.Course?.CreditHours Cr</span>
+                                                        </div>
+                                                        <p class="text-sm text-slate-700 font-medium leading-tight">
+                                                            @structure.Course?.Title
+                                                        </p>
+                                                    </div>
+
+                                                    <form method="post" asp-page-handler="RemoveCourse" class="m-0 flex-shrink-0" onsubmit="return confirm('Remove this course from Semester @semester?');">
+                                                        <input type="hidden" asp-for="ProgId" />
+                                                        <input type="hidden" asp-for="SessionJoined" />
+                                                        <input type="hidden" name="structureId" value="@structure.Id" />
+                                                        <button type="submit" class="text-slate-300 hover:text-red-500 hover:bg-red-50 p-1.5 rounded transition-colors" title="Remove Course">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <div class="flex-1 flex flex-col items-center justify-center text-slate-400 opacity-70">
+                                                <p class="text-xs italic">Drop courses here</p>
+                                            </div>
+                                        }
+                                    </div>
+
+                                    <div class="p-3 border-t border-slate-200 bg-white rounded-b-xl overflow-visible">
+                                        <form method="post" asp-page-handler="AddCourse" class="flex flex-col gap-2">
+                                            <input type="hidden" asp-for="ProgId" />
+                                            <input type="hidden" asp-for="SessionJoined" />
+                                            <input type="hidden" name="year" value="@year" />
+                                            <input type="hidden" name="sem" value="@semester" />
+                                            
+                                            <select name="courseId" class="searchable-select w-full" required autocomplete="off" placeholder="Type to search courses...">
+                                                <option value="">Search courses...</option>
+                                                @foreach (var opt in Model.CourseOptions)
+                                                {
+                                                    <option value="@opt.Value">@opt.Text</option>
+                                                }
+                                            </select>
+                                            <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-semibold py-1.5 rounded shadow-sm transition-colors text-xs flex items-center justify-center gap-1 mt-1">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                                Add
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Apply Tom Select to all elements with class 'searchable-select'
+            document.querySelectorAll('.searchable-select').forEach((el) => {
+                new TomSelect(el, {
+                    create: false,
+                    sortField: {
+                        field: "text",
+                        direction: "asc"
+                    },
+                    maxOptions: 50,
+                    placeholder: "Type to search courses..."
+                });
+            });
+        });
+    </script>
+}

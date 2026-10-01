@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full overflow-hidden">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - Ronnie University</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        html, body {
+            height: 100%;
+            overflow: hidden !important;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        h1, h2, h3, .brand-font {
+            font-family: 'Merriweather', serif;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+
+        #main-sidebar {
+            transition: width 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        }
+
+        .sidebar-collapsed {
+            width: 0 !important;
+            overflow: hidden;
+            opacity: 0;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 h-full w-full flex overflow-hidden">
+
+    <aside id="main-sidebar" class="w-72 h-full bg-slate-900 text-slate-300 flex-shrink-0 flex flex-col shadow-2xl z-50">
+        <div class="h-20 flex-shrink-0 flex items-center px-6 border-b border-slate-800 bg-slate-950">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center shadow-lg">
+                    <span class="text-white font-bold text-xl font-serif">R</span>
+                </div>
+                <div>
+                    <h1 class="text-white font-bold text-lg leading-tight">RONNIE</h1>
+                    <p class="text-xs text-blue-400 font-medium uppercase tracking-widest">University</p>
+                </div>
+            </div>
+        </div>
+
+        <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto custom-scrollbar">
+            <p class="px-4 mb-3 text-xs font-bold text-slate-500 uppercase tracking-widest">Main Menu</p>
+            <a href="/Admin/Dashboard" class="group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 hover:bg-blue-600 hover:text-white @(ViewContext.HttpContext.Request.Path == "/Admin/Dashboard" ? "bg-blue-600 text-white shadow-lg shadow-blue-900/20" : "text-slate-400")">
+                <svg class="w-5 h-5 mr-3 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                Dashboard
+            </a>
+
+            <p class="px-4 mt-8 mb-3 text-xs font-bold text-slate-500 uppercase tracking-widest">Academic Records</p>
+            <a href="/Admin/Students/Index" class="group flex items-center px-4 py-2.5 text-sm font-medium text-slate-400 rounded-xl hover:bg-slate-800 hover:text-white @(ViewContext.HttpContext.Request.Path.ToString().Contains("/Admin/Students") ? "bg-blue-600 text-white shadow-lg shadow-blue-900/20" : "")">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                Students
+            </a>
+
+            <a href="/Admin/Staff/Index" class="group flex items-center px-4 py-2.5 text-sm font-medium text-slate-400 rounded-xl hover:bg-slate-800 hover:text-white @(ViewContext.HttpContext.Request.Path.ToString().Contains("/Admin/Staff") ? "bg-blue-600 text-white shadow-lg shadow-blue-900/20" : "")">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                Staff Directory
+            </a>
+
+            <div>
+                <button onclick="toggleDropdown('programmes-dropdown')" class="w-full group flex items-center justify-between px-4 py-2.5 text-sm font-medium text-slate-400 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                        Programmes
+                    </div>
+                    <svg id="programmes-dropdown-icon" class="w-4 h-4 transition-transform duration-200 @(ViewContext.HttpContext.Request.Path.ToString().Contains("/Admin/Academic") ? "rotate-180" : "")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div id="programmes-dropdown" class="@(ViewContext.HttpContext.Request.Path.ToString().Contains("/Admin/Academic") ? "flex" : "hidden") flex-col mt-1 space-y-1 pl-12 pr-4">
+                    <a href="/Admin/Academic/Structure/Index" class="block py-2 text-sm text-slate-400 hover:text-white transition-colors">Programme Structure</a>
+                    <a href="/Admin/Academic/Timetable" class="block py-2 text-sm text-slate-400 hover:text-white transition-colors">Course Timetable</a>
+                    <a href="/Admin/Academic/Advisory" class="block py-2 text-sm text-slate-400 hover:text-white transition-colors">Academic Advisory</a>
+                    <a href="/Admin/Academic/CoCurriculum" class="block py-2 text-sm text-slate-400 hover:text-white transition-colors">Co-curriculum</a>
+                </div>
+            </div>
+
+            <div>
+                <button onclick="toggleDropdown('exam-dropdown')" class="w-full group flex items-center justify-between px-4 py-2.5 text-sm font-medium text-slate-400 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        Examinations
+                    </div>
+                    <svg id="exam-dropdown-icon" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div id="exam-dropdown" class="hidden flex-col mt-1 space-y-1 pl-12 pr-4">
+                    <a href="/Admin/Exam/Timetable" class="block py-2 text-sm text-slate-400 hover:text-white transition-colors">Examination Timetable</a>
+                    <a href="/Admin/Exam/SemesterResult" class="block py-2 text-sm text-slate-400 hover:text-white transition-colors">Semester Result</a>
+                    <a href="/Admin/Exam/OverallResult" class="block py-2 text-sm text-slate-400 hover:text-white transition-colors">Overall Result</a>
+                </div>
+            </div>
+
+            <p class="px-4 mt-8 mb-3 text-xs font-bold text-slate-500 uppercase tracking-widest">Management</p>
+
+            <div>
+                <button onclick="toggleDropdown('manage-dropdown')" class="w-full group flex items-center justify-between px-4 py-2.5 text-sm font-medium text-slate-400 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
+                        System Directory
+                    </div>
+                    <svg id="manage-dropdown-icon" class="w-4 h-4 transition-transform duration-200 @(ViewContext.HttpContext.Request.Path.ToString().Contains("/Admin/Manage") ? "rotate-180" : "")" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div id="manage-dropdown" class="@(ViewContext.HttpContext.Request.Path.ToString().Contains("/Admin/Manage") ? "flex" : "hidden") flex-col mt-1 space-y-1 pl-12 pr-4">
+                    <a href="/Admin/Manage/Index" class="block py-2 text-sm @(ViewContext.HttpContext.Request.Path == "/Admin/Manage/Index" ? "text-blue-400 font-bold" : "text-slate-400") hover:text-white transition-colors">View Directory</a>
+                    <a href="/Admin/Manage/Create" class="block py-2 text-sm @(ViewContext.HttpContext.Request.Path == "/Admin/Manage/Create" ? "text-blue-400 font-bold" : "text-slate-400") hover:text-white transition-colors">Create Record</a>
+                </div>
+            </div>
+
+            <a href="/Admin/Facility/Index" class="group flex items-center px-4 py-2.5 text-sm font-medium text-slate-400 rounded-xl hover:bg-slate-800 hover:text-white">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                Facilities
+            </a>
+
+            <a href="/Admin/Leaves" class="group flex items-center px-4 py-2.5 text-sm font-medium text-slate-400 rounded-xl hover:bg-slate-800 hover:text-white">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                Leave Requests
+            </a>
+
+            <a href="/Admin/Bill/Index" class="group flex items-center px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 hover:bg-slate-800 hover:text-white @(ViewContext.HttpContext.Request.Path.ToString() == "/Admin/Bill/Index" ? "bg-blue-600 text-white shadow-lg shadow-blue-900/20" : "text-slate-400")">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Bills
+            </a>
+
+            <a href="/Admin/Bill/GenerateBill" class="group flex items-center px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 hover:bg-slate-800 hover:text-white @(ViewContext.HttpContext.Request.Path.ToString() == "/Admin/Bill/GenerateBill" ? "bg-blue-600 text-white shadow-lg shadow-blue-900/20" : "text-slate-400")">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                Generate Bill
+            </a>
+
+            <a href="/Admin/Announcements/Index" class="group flex items-center px-4 py-2.5 text-sm font-medium text-slate-400 rounded-xl hover:bg-slate-800 hover:text-white">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path></svg>
+                Announcements
+            </a>
+
+            <p class="px-4 mt-8 mb-3 text-xs font-bold text-slate-500 uppercase tracking-widest">Security</p>
+            <a href="/Admin/LoginActivity/Main" class="group flex items-center px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 hover:bg-slate-800 hover:text-white @(ViewContext.HttpContext.Request.Path.ToString().Contains("LoginActivity") ? "bg-blue-600 text-white shadow-lg shadow-blue-900/20" : "text-slate-400")">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                Login Activity
+            </a>
+        </nav>
+
+        <div class="px-6 py-4 flex-shrink-0 border-t border-slate-800 text-center">
+            <p class="text-[10px] text-slate-500 uppercase tracking-widest">&copy; 2026 Ronnie University.</p>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-full overflow-hidden bg-slate-50 transition-all duration-300 relative">
+
+        <header class="h-20 flex-shrink-0 glass border-b border-slate-200 flex items-center justify-between px-8 z-40">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()" class="text-slate-500 hover:text-slate-800 p-2 rounded-lg hover:bg-slate-200 transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path></svg>
+                </button>
+                <div>
+                    <h2 class="text-xl font-bold text-slate-800 tracking-tight">@ViewData["Title"]</h2>
+                    <p class="text-xs text-slate-400 hidden sm:block">Administration Portal</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="/Admin/Logout" class="flex items-center justify-center w-10 h-10 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all m-0 p-0" title="Logout">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                </a>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
+            @RenderBody()
+        </div>
+
+    </main>
+
+    <script>
+        // --- ULTIMATE BFCache Killer (Back Button Fix) ---
+        window.onpageshow = function(event) {
+            // Check if page loaded from cache OR if the user explicitly used the Back/Forward button (type 2)
+            if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+                window.location.reload(true); // Force hard reload from server
+            }
+        };
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('main-sidebar');
+            sidebar.classList.toggle('sidebar-collapsed');
+        }
+
+        function toggleDropdown(id) {
+            const dropdown = document.getElementById(id);
+            const icon = document.getElementById(id + '-icon');
+
+            if (dropdown.classList.contains('hidden')) {
+                dropdown.classList.remove('hidden');
+                dropdown.classList.add('flex');
+                if (icon) icon.classList.add('rotate-180');
+            } else {
+                dropdown.classList.add('hidden');
+                dropdown.classList.remove('flex');
+                if (icon) icon.classList.remove('rotate-180');
+            }
+        }
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

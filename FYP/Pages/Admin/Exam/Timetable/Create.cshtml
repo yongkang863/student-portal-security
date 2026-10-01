@@ -1,0 +1,59 @@
+@page
+@model FYP.Pages.Admin.Exam.Timetable.CreateModel
+@{
+    ViewData["Title"] = "Create Exam Schedule";
+    Layout = "_AdminLayout";
+}
+
+<div class="max-w-2xl mx-auto space-y-6">
+    <div class="flex justify-between items-end">
+        <div>
+            <h1 class="text-2xl font-bold font-serif text-slate-800">New Exam Schedule</h1>
+            <p class="text-sm text-slate-500 mt-1">Select an active student cohort to create their timetable.</p>
+        </div>
+        <a href="/Admin/Exam/Timetable/Index" class="text-sm font-medium text-slate-500 hover:text-blue-600 hover:underline transition-colors">
+            &larr; Back to Schedules
+        </a>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="p-4 bg-red-50 text-red-700 rounded-xl border border-red-200 flex items-start">
+            <svg class="w-5 h-5 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <div class="text-sm font-medium">@Model.ErrorMessage</div>
+        </div>
+    }
+
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <form method="post" class="p-8 space-y-6">
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2">Available Student Cohorts</label>
+                
+                @if (Model.CohortOptions.Any())
+                {
+                    <select asp-for="Input.SelectedCohort" asp-items="Model.CohortOptions" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                        <option value="">-- Select Programme & Session --</option>
+                    </select>
+                    <span asp-validation-for="Input.SelectedCohort" class="text-xs text-red-500 mt-1 block"></span>
+                    <p class="text-xs text-slate-500 mt-2">Only cohorts with <strong>Active</strong> students that do not already have a schedule are shown here.</p>
+                }
+                else
+                {
+                    <div class="p-4 bg-amber-50 text-amber-700 rounded-lg border border-amber-200 text-sm">
+                        There are no eligible student cohorts available. All active student groups already have an exam schedule assigned.
+                    </div>
+                }
+            </div>
+
+            <div class="pt-6 border-t border-slate-100 flex justify-end gap-3">
+                <a href="/Admin/Exam/Timetable/Index" class="px-5 py-2.5 text-slate-600 font-bold hover:bg-slate-100 rounded-lg transition-colors">Cancel</a>
+                @if (Model.CohortOptions.Any())
+                {
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-lg shadow-md transition-all flex items-center gap-2">
+                        Create & Continue <span aria-hidden="true">&rarr;</span>
+                    </button>
+                }
+            </div>
+        </form>
+    </div>
+</div>

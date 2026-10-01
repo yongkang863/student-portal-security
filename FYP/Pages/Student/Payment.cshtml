@@ -1,0 +1,146 @@
+@page
+@model FYP.Pages.Student.PaymentModel
+@{
+    Layout = "_StudentLayout";
+    ViewData["Title"] = "Secure Payment Checkout";
+}
+
+<div class="max-w-4xl mx-auto mt-6 animate-fade-in-up">
+
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-fuchsia-300">Secure Checkout</h1>
+        <p class="text-purple-300/70 mt-1 flex items-center gap-2">
+            <i class="fa-solid fa-lock text-fuchsia-400"></i> Sandbox Environment - Credit / Debit Card Gateway
+        </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+
+        <div class="lg:col-span-3">
+
+            <div class="bg-purple-950/40 backdrop-blur-xl border border-purple-500/30 rounded-2xl p-8 shadow-[0_10px_30px_rgba(88,28,135,0.4)] relative overflow-hidden">
+
+                <h3 class="text-xl font-bold text-white mb-6 border-b border-purple-500/20 pb-4 flex items-center gap-3">
+                    <i class="fa-regular fa-credit-card"></i> Payment Details
+                </h3>
+
+                <form id="paymentForm" method="post" class="space-y-5">
+
+                    <input type="hidden" asp-for="BillId" />
+
+                    <div>
+                        <label class="block text-sm font-bold text-purple-200 mb-1">Select Bank / Payment Method</label>
+                        <select asp-for="SelectedBank" asp-items="Model.BankOptions" class="w-full px-4 py-3 bg-purple-900/50 border border-purple-500/30 rounded-xl text-white focus:ring-2 focus:ring-fuchsia-500 outline-none transition-all">
+                            <option value="">-- Choose your bank --</option>
+                        </select>
+                        <span asp-validation-for="SelectedBank" class="text-xs text-red-400 mt-1"></span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold text-purple-200 mb-1">First Name</label>
+                            <input type="text" asp-for="FirstName" class="w-full px-4 py-3 bg-purple-900/50 border border-purple-500/30 rounded-xl text-white focus:ring-2 focus:ring-fuchsia-500 outline-none" placeholder="e.g. Ali" />
+                            <span asp-validation-for="FirstName" class="text-xs text-red-400 mt-1"></span>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-purple-200 mb-1">Last Name</label>
+                            <input type="text" asp-for="LastName" class="w-full px-4 py-3 bg-purple-900/50 border border-purple-500/30 rounded-xl text-white focus:ring-2 focus:ring-fuchsia-500 outline-none" placeholder="e.g. Bin Abu" />
+                            <span asp-validation-for="LastName" class="text-xs text-red-400 mt-1"></span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-purple-200 mb-1">Card Number</label>
+                        <input type="text" asp-for="CardNumber" maxlength="16" class="w-full px-4 py-3 bg-purple-900/50 border border-purple-500/30 rounded-xl text-white font-mono tracking-widest focus:ring-2 focus:ring-fuchsia-500 outline-none" placeholder="0000 0000 0000 0000" />
+                        <span asp-validation-for="CardNumber" class="text-xs text-red-400 mt-1"></span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold text-purple-200 mb-1">Expiry Date</label>
+                            <input type="text" id="expiryInput" asp-for="ExpiryDate" placeholder="MM/YY" maxlength="5" class="w-full px-4 py-3 bg-purple-900/50 border border-purple-500/30 rounded-xl text-white font-mono focus:ring-2 focus:ring-fuchsia-500 outline-none" />
+                            <span asp-validation-for="ExpiryDate" class="text-xs text-red-400 mt-1"></span>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-purple-200 mb-1">CVV</label>
+                            <input type="password" asp-for="CVV" maxlength="3" class="w-full px-4 py-3 bg-purple-900/50 border border-purple-500/30 rounded-xl text-white font-mono tracking-widest focus:ring-2 focus:ring-fuchsia-500 outline-none" placeholder="•••" />
+                            <span asp-validation-for="CVV" class="text-xs text-red-400 mt-1"></span>
+                        </div>
+                    </div>
+
+                    <div class="pt-4">
+                        <button type="submit" class="w-full py-4 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-bold rounded-xl shadow-[0_0_15px_rgba(217,70,239,0.4)] transition-all flex justify-center items-center gap-2">
+                            Pay RM @Model.PaymentBill.Amount.ToString("0.00")
+                        </button>
+                    </div>
+                </form>
+
+                <div id="loadingOverlay" class="hidden absolute inset-0 bg-purple-950/80 backdrop-blur-sm z-10 flex-col justify-center items-center rounded-2xl">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-fuchsia-400 mb-4"></div>
+                    <p class="text-fuchsia-200 font-bold animate-pulse">Processing Payment...</p>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="lg:col-span-2">
+            <div class="bg-purple-950/40 backdrop-blur-xl border border-purple-500/30 rounded-2xl p-6 shadow-[0_10px_30px_rgba(88,28,135,0.4)] sticky top-6">
+                <h3 class="text-lg font-bold text-white mb-4">Order Summary</h3>
+
+                <div class="space-y-4 mb-6">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-purple-300">Bill Title</span>
+                        <span class="text-white font-semibold">@Model.PaymentBill.Title</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-purple-300">Reference No</span>
+                        <span class="text-white font-mono">@Model.PaymentBill.ReferenceNo</span>
+                    </div>
+                </div>
+
+                <div class="border-t border-purple-500/30 pt-4 flex justify-between items-center">
+                    <span class="text-purple-200 font-bold">Total Payable</span>
+                    <span class="text-2xl font-bold text-white">RM @Model.PaymentBill.Amount.ToString("0.00")</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Auto-format the MM/YY Expiry Date and prevent invalid months
+        const expiryInput = document.getElementById('expiryInput');
+        expiryInput.addEventListener('input', function (e) {
+            let input = e.target.value.replace(/\D/g, '').substring(0, 4);
+            let formatted = input;
+
+            if (input.length >= 2) {
+                // Prevent user from typing a month greater than 12
+                let month = parseInt(input.substring(0, 2));
+                if (month > 12) {
+                    input = '12' + input.substring(2);
+                } else if (month === 0 && input.length === 2) {
+                    input = '01' + input.substring(2); // Prevent '00'
+                }
+
+                if (input.length > 2) {
+                    formatted = input.substring(0, 2) + '/' + input.substring(2, 4);
+                } else {
+                    formatted = input.substring(0, 2) + '/';
+                }
+            }
+            e.target.value = formatted;
+        });
+
+        // Simulate a loading delay before submitting the form
+        document.getElementById('paymentForm').addEventListener('submit', function(e) {
+            if (this.checkValidity()) {
+                document.getElementById('loadingOverlay').classList.remove('hidden');
+                document.getElementById('loadingOverlay').classList.add('flex');
+            }
+        });
+    </script>
+}

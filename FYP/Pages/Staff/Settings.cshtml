@@ -1,0 +1,179 @@
+@page
+@model FYP.Pages.Staff.SettingsModel
+@{
+    Layout = "_StaffLayout";
+    ViewData["Title"] = "Change Password";
+}
+
+<div class="max-w-2xl mx-auto space-y-6 mt-8">
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+        <h2 class="text-2xl font-bold text-slate-800 border-b border-slate-100 pb-4 mb-6">Change Password</h2>
+
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="mb-6 p-4 text-red-700 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                @Model.ErrorMessage
+            </div>
+        }
+        @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+        {
+            <div class="mb-6 p-4 text-green-700 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                @Model.SuccessMessage
+            </div>
+        }
+
+        <form method="post" class="space-y-6">
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2">Current Password</label>
+                <div class="relative">
+                    <input type="password" asp-for="Input.CurrentPassword" id="currentPassword" class="w-full px-4 py-3 pr-10 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all outline-none" required />
+                    <button type="button" onclick="togglePassword('currentPassword', 'eyeIconCurrent')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-blue-600 focus:outline-none transition-colors">
+                        <svg id="eyeIconCurrent" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2">New Password</label>
+                <div class="relative">
+                    <input type="password" asp-for="Input.NewPassword" id="newPassword" class="w-full px-4 py-3 pr-10 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all outline-none" required />
+                    <button type="button" onclick="togglePassword('newPassword', 'eyeIconNew')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-blue-600 focus:outline-none transition-colors">
+                        <svg id="eyeIconNew" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="mt-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                    <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Password Requirements:</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm" id="passwordRules">
+                        <p id="rule-length" class="text-slate-400 flex items-center gap-2"><span class="icon">❌</span> Minimum 8 characters</p>
+                        <p id="rule-letter" class="text-slate-400 flex items-center gap-2"><span class="icon">❌</span> At least one letter</p>
+                        <p id="rule-number" class="text-slate-400 flex items-center gap-2"><span class="icon">❌</span> At least one number</p>
+                        <p id="rule-symbol" class="text-slate-400 flex items-center gap-2"><span class="icon">❌</span> At least one symbol</p>
+                        <p id="rule-emoji" class="text-green-600 flex items-center gap-2"><span class="icon">✅</span> Cannot contain emojis</p>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2">Confirm New Password</label>
+                <div class="relative">
+                    <input type="password" asp-for="Input.ConfirmPassword" id="confirmPassword" class="w-full px-4 py-3 pr-10 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all outline-none" required />
+                    <button type="button" onclick="togglePassword('confirmPassword', 'eyeIconConfirm')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-blue-600 focus:outline-none transition-colors">
+                        <svg id="eyeIconConfirm" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                        </svg>
+                    </button>
+                </div>
+
+                <p id="rule-match" class="text-red-500 text-sm mt-2 hidden flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    Passwords do not match
+                </p>
+            </div>
+
+            <div class="pt-4 border-t border-slate-100">
+                <button type="submit" id="submitBtn" class="w-full py-3 px-4 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors opacity-50 cursor-not-allowed" disabled>
+                    Save New Password
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+ 
+        function togglePassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />';
+            } else {
+                input.type = 'password';
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />';
+            }
+        }
+
+      
+        document.addEventListener("DOMContentLoaded", function () {
+            const passwordInput = document.getElementById('newPassword');
+            const confirmInput = document.getElementById('confirmPassword');
+            const submitBtn = document.getElementById('submitBtn');
+            const matchError = document.getElementById('rule-match');
+
+            const rules = {
+                length: (pw) => pw.length >= 8,
+                letter: (pw) => /[a-zA-Z]/.test(pw),
+                number: (pw) => /[0-9]/.test(pw),
+                symbol: (pw) => /[^a-zA-Z0-9\s]/.test(pw),
+                emoji: (pw) => !/(\p{Emoji_Presentation}|\p{Extended_Pictographic})/gu.test(pw)
+            };
+
+            function updateUIRule(id, isValid) {
+                const el = document.getElementById(`rule-${id}`);
+                const icon = el.querySelector('.icon');
+
+                if (isValid) {
+                    el.classList.remove('text-slate-400', 'text-red-500');
+                    el.classList.add('text-green-600');
+                    icon.textContent = '✅';
+                } else {
+                    el.classList.remove('text-green-600', 'text-slate-400');
+                    el.classList.add('text-red-500');
+                    icon.textContent = '❌';
+                }
+            }
+
+            function validateForm() {
+                const pw = passwordInput.value;
+                const cpw = confirmInput.value;
+
+                if (pw.length === 0) {
+                    updateUIRule('emoji', true);
+                } else {
+                    updateUIRule('emoji', rules.emoji(pw));
+                }
+
+                const isValidLength = rules.length(pw);
+                const isValidLetter = rules.letter(pw);
+                const isValidNumber = rules.number(pw);
+                const isValidSymbol = rules.symbol(pw);
+                const isValidEmoji = rules.emoji(pw);
+
+                updateUIRule('length', isValidLength);
+                updateUIRule('letter', isValidLetter);
+                updateUIRule('number', isValidNumber);
+                updateUIRule('symbol', isValidSymbol);
+
+                const passwordsMatch = pw === cpw && pw !== '';
+
+                if (cpw.length > 0 && !passwordsMatch) {
+                    matchError.classList.remove('hidden');
+                } else {
+                    matchError.classList.add('hidden');
+                }
+
+                const allRulesMet = isValidLength && isValidLetter && isValidNumber && isValidSymbol && isValidEmoji;
+
+                if (allRulesMet && passwordsMatch) {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                } else {
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+            }
+
+            passwordInput.addEventListener('input', validateForm);
+            confirmInput.addEventListener('input', validateForm);
+        });
+    </script>
+}

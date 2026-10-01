@@ -1,0 +1,76 @@
+@page
+@model FYP.Pages.Student.ViewLeaveModel
+@{
+    Layout = "_StudentLayout";
+    ViewData["Title"] = "View Leave History";
+}
+
+<div class="max-w-6xl mx-auto py-8">
+    <div class="mb-8 p-8 bg-gradient-to-r from-purple-900/40 to-fuchsia-900/20 border border-purple-500/30 rounded-3xl shadow-[0_0_30px_rgba(168,85,247,0.15)] backdrop-blur-md">
+        <h2 class="text-3xl font-extrabold tracking-tight text-white mb-2">Leave History</h2>
+        <p class="text-purple-300">View your past and pending leave applications.</p>
+    </div>
+
+    <div class="bg-purple-950/40 rounded-3xl border border-purple-500/20 overflow-hidden shadow-[0_0_30px_rgba(88,28,135,0.3)] backdrop-blur-xl p-8">
+        @if (Model.LeaveHistory != null && Model.LeaveHistory.Any())
+        {
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-white border-collapse">
+                    <thead>
+                        <tr class="border-b border-purple-500/30 text-purple-300">
+                            <th class="p-4 font-bold">Start Date</th>
+                            <th class="p-4 font-bold">End Date</th>
+                            <th class="p-4 font-bold">Type</th>
+                            <th class="p-4 font-bold">Reason</th>
+                            <th class="p-4 font-bold">Document</th>
+                            <th class="p-4 font-bold">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var leave in Model.LeaveHistory)
+                        {
+                            <tr class="border-b border-purple-500/10 hover:bg-purple-900/20 transition-colors">
+                                <td class="p-4">@leave.StartDate.ToString("yyyy-MM-dd")</td>
+                                <td class="p-4">@leave.EndDate.ToString("yyyy-MM-dd")</td>
+                                <td class="p-4">@leave.LeaveType</td>
+                                <td class="p-4 max-w-xs truncate" title="@leave.Reason">@leave.Reason</td>
+                                <td class="p-4">
+                                    @if (!string.IsNullOrEmpty(leave.Document))
+                                    {
+                                        <a href="@leave.Document" target="_blank" class="text-fuchsia-400 hover:text-fuchsia-300 underline">View</a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-gray-500">None</span>
+                                    }
+                                </td>
+                                <td class="p-4">
+                                    @if (leave.StatusId == 1)
+                                    {
+                                        <span class="px-3 py-1 bg-green-500/20 text-green-400 border border-green-500/30 rounded-full text-sm">Approved</span>
+                                    }
+                                    else if (leave.StatusId == 3)
+                                    {
+                                        <span class="px-3 py-1 bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full text-sm">Pending</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="px-3 py-1 bg-red-500/20 text-red-400 border border-red-500/30 rounded-full text-sm">Rejected</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-12">
+                <i class="fa-solid fa-calendar-xmark text-6xl text-purple-500/50 mb-4"></i>
+                <h3 class="text-2xl font-bold text-white mb-2">No Leave History</h3>
+                <p class="text-purple-300">You haven't applied for any leaves yet.</p>
+            </div>
+        }
+    </div>
+</div>

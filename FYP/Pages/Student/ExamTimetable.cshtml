@@ -1,0 +1,257 @@
+@page
+@model FYP.Pages.Student.ExamTimetableModel
+@{
+    ViewData["Title"] = "Examination Timetable";
+    Layout = "_StudentLayout";
+}
+
+@* =========================================================================
+   PRINT STYLES FOR EXAM SLIP
+   ========================================================================= *@
+<style>
+    .print-only {
+        display: none;
+    }
+
+    @@media print {
+        /* Hide UI elements */
+        aside, header, #sidebarToggle, .screen-only, .fixed.inset-0 {
+            display: none !important;
+        }
+        /* Reset page background and padding for A4 */
+        body, main, .p-8 {
+            padding: 0 !important;
+            margin: 0 !important;
+            background-color: white !important;
+            color: black !important;
+            height: auto !important;
+            overflow: visible !important;
+        }
+        /* Force text colors to black/dark gray for printing */
+        h1, h2, h3, h4, p, span, div, i, td, th {
+            color: black !important;
+            text-shadow: none !important;
+            -webkit-text-fill-color: black !important;
+        }
+        /* Convert Glassmorphism cards to solid outlined boxes */
+        .bg-purple-950\/20, .bg-black\/40, .backdrop-blur-xl, .backdrop-blur-md {
+            background: white !important;
+            box-shadow: none !important;
+            border: none !important;
+        }
+
+        .exam-card {
+            break-inside: avoid;
+            margin-bottom: 12px !important;
+            border: 1px solid #ccc !important;
+            border-radius: 8px !important;
+            padding: 12px !important;
+        }
+        /* Show Print-Specific Layouts */
+        .print-only {
+            display: block !important;
+        }
+
+        .print-flex {
+            display: flex !important;
+        }
+        /* Table overrides for print */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f3f4f6 !important;
+            -webkit-print-color-adjust: exact;
+        }
+    }
+</style>
+
+<script>
+    function printExamSlip() {
+        window.print();
+    }
+</script>
+
+@* =========================================================================
+   PRINT ONLY: OFFICIAL HEADER
+   ========================================================================= *@
+<div class="print-only mb-6">
+    <div class="flex justify-between items-start border-b-2 border-black pb-4">
+        <div class="flex-1">
+            <h1 class="text-3xl font-bold uppercase tracking-widest mb-1">Ronnie University</h1>
+            <h2 class="text-xl font-semibold text-gray-700 mb-6">Official Examination Slip</h2>
+
+            <div class="grid grid-cols-2 gap-y-2 text-sm max-w-2xl">
+                <div><strong>Student Name:</strong> @Model.CurrentUser?.FullName</div>
+                <div><strong>Student ID:</strong> @Model.CurrentUser?.UserId</div>
+                <div><strong>IC / Passport No:</strong> @Model.CurrentUser?.IcNumber</div>
+                <div><strong>Programme:</strong> @Model.CurrentUser?.Programme?.Code</div>
+                <div><strong>Session Joined:</strong> @Model.CurrentUser?.SessionJoined</div>
+                <div><strong>Print Date:</strong> @DateTime.Now.ToString("dd MMM yyyy")</div>
+            </div>
+        </div>
+
+        @* Student Photo Box *@
+        <div class="ml-4">
+            @if (!string.IsNullOrEmpty(Model.StudentPhotoBase64))
+            {
+                <div class="w-28 h-36 border-2 border-gray-400 p-1 bg-white">
+                    <img src="@Model.StudentPhotoBase64" alt="Student Photo" class="w-full h-full object-cover" />
+                </div>
+            }
+            else
+            {
+                <div class="w-28 h-36 border-2 border-gray-400 p-1 bg-gray-50 flex items-center justify-center text-center text-xs text-gray-500">
+                    <i class="fa-solid fa-user text-3xl mb-2 block text-gray-300"></i>
+                    No Photo
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="mt-4 mb-2 text-sm font-bold text-center">
+        Please present this slip along with your Student ID card during all examinations.
+    </div>
+</div>
+
+@* =========================================================================
+   DASHBOARD HEADER (SCREEN ONLY)
+   ========================================================================= *@
+<div class="screen-only animate-fade-in-up relative bg-black/40 backdrop-blur-xl rounded-2xl border border-purple-500/20 p-8 mb-8 overflow-hidden shadow-[0_8px_32px_0_rgba(88,28,135,0.3)]">
+    <div class="absolute -top-24 -right-24 w-64 h-64 rounded-full bg-fuchsia-600/10 blur-[80px] pointer-events-none"></div>
+
+    <div class="relative z-10">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <h2 class="text-3xl font-bold text-white tracking-tight flex items-center gap-3 mb-2">
+                    <i class="fa-solid fa-file-signature text-fuchsia-400"></i>
+                    Examination Timetable
+                </h2>
+
+                @if (Model.CurrentSchedule != null)
+                {
+                    <div class="flex flex-wrap items-center gap-3 text-sm">
+                        <span class="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 font-medium">
+                            <i class="fa-solid fa-circle-check mr-1"></i> Published
+                        </span>
+                        <span class="px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 font-medium">
+                            Last Updated: @(Model.CurrentSchedule.LastUpdated?.ToString("dd MMM yyyy, hh:mm tt") ?? "N/A")
+                        </span>
+                    </div>
+                }
+            </div>
+
+            @if (Model.Exams.Any())
+            {
+                <button onclick="printExamSlip()" class="flex items-center justify-center px-5 py-2.5 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white rounded-xl shadow-[0_0_15px_rgba(217,70,239,0.4)] hover:shadow-[0_0_25px_rgba(217,70,239,0.6)] hover:scale-105 transition-all font-semibold text-sm">
+                    <i class="fa-solid fa-print mr-2"></i> Print Exam Slip
+                </button>
+            }
+        </div>
+    </div>
+</div>
+
+@* =========================================================================
+   EXAM SLOTS CONTENT (VISIBLE ON BOTH)
+   ========================================================================= *@
+@if (Model.CurrentSchedule == null || !Model.Exams.Any())
+{
+    <div class="bg-purple-950/20 border border-dashed border-purple-500/30 rounded-xl p-12 text-center text-purple-300/60 shadow-inner">
+        <i class="fa-solid fa-calendar-xmark text-5xl mb-4 text-purple-500/30"></i>
+        <h3 class="text-xl font-bold text-purple-200 mb-2">No Exams Scheduled</h3>
+        <p>Your examination timetable for this session has not been published yet. Please check back later or contact the faculty.</p>
+    </div>
+}
+else
+{
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        @foreach (var exam in Model.Exams)
+        {
+            <div class="exam-card animate-fade-in-up bg-purple-950/20 backdrop-blur-md rounded-2xl border border-purple-500/20 p-6 flex flex-col group hover:border-fuchsia-500/40 transition-all duration-300 hover:shadow-[0_0_20px_rgba(217,70,239,0.15)] relative overflow-hidden">
+
+                @if (exam.IsUpcoming)
+                {
+                    <div class="screen-only absolute top-0 right-0 bg-fuchsia-600/20 border-b border-l border-fuchsia-500/40 text-fuchsia-300 text-[10px] font-bold px-3 py-1 rounded-bl-lg tracking-wider">
+                        UPCOMING
+                    </div>
+                }
+
+                <div class="mb-4">
+                    <div class="text-sm font-bold text-fuchsia-400 mb-1 tracking-wider">@exam.Slot.Course?.Code</div>
+                    <h3 class="text-xl font-bold text-white leading-tight">@exam.Slot.Course?.Title</h3>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mt-auto border-t border-purple-500/10 pt-4">
+
+                    @* Date & Time *@
+                    <div>
+                        <div class="text-[10px] text-purple-400/60 uppercase tracking-widest mb-1 font-semibold">Date & Time</div>
+                        <div class="flex items-start gap-2 text-purple-100">
+                            <i class="fa-regular fa-calendar text-fuchsia-400 mt-0.5"></i>
+                            <div class="text-sm font-medium">
+                                <div>@exam.Slot.ExamDate.ToString("dd MMM yyyy")</div>
+                                <div class="text-purple-300">@exam.Slot.StartTime.ToString("hh:mm tt") - @exam.Slot.EndTime.ToString("hh:mm tt")</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @* Venue & Seat *@
+                    <div>
+                        <div class="text-[10px] text-purple-400/60 uppercase tracking-widest mb-1 font-semibold">Venue & Seat</div>
+                        <div class="flex items-start gap-2 text-purple-100 mb-2">
+                            <i class="fa-solid fa-location-dot text-violet-400 mt-0.5"></i>
+                            <div class="text-sm font-medium">
+                                <div>@(exam.Slot.Venue?.Name ?? "TBA")</div>
+                                @if (!string.IsNullOrEmpty(exam.Slot.Venue?.Classroom))
+                                {
+                                    <div class="text-purple-300">Room: @exam.Slot.Venue.Classroom</div>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="inline-flex items-center gap-2 bg-purple-900/40 border border-purple-500/30 px-3 py-1.5 rounded-lg">
+                            <i class="fa-solid fa-chair text-purple-400 text-sm"></i>
+                            <span class="text-sm font-bold @(exam.SeatNumber == "TBA" ? "text-rose-400" : "text-white")">
+                                Seat: @exam.SeatNumber
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        }
+    </div>
+}
+
+@* =========================================================================
+   PRINT ONLY: EXAM RULES & REGULATIONS
+   ========================================================================= *@
+@if (Model.Exams.Any())
+{
+    <div class="print-only mt-10 pt-6 border-t-2 border-black">
+        <h3 class="font-bold text-lg mb-3">Examination Rules & Regulations</h3>
+        <ol class="list-decimal pl-5 text-sm space-y-2 text-gray-800">
+            <li>Candidates must present this Examination Slip and a valid Student ID Card to the invigilator. Failure to do so may result in denied entry to the examination hall.</li>
+            <li>Candidates must arrive at the examination venue at least <strong>15 minutes</strong> before the scheduled start time.</li>
+            <li>No candidate will be permitted to enter the examination hall 30 minutes after the exam has commenced.</li>
+            <li>Smartphones, smartwatches, programmable calculators, and unauthorized materials are strictly prohibited at the examination desk.</li>
+            <li>Candidates are not allowed to leave the hall during the first 30 minutes and the last 15 minutes of the examination.</li>
+        </ol>
+
+        <div class="mt-12 flex justify-end">
+            <div class="text-center w-64 border-t border-black pt-2">
+                <p class="font-bold text-sm">Chief Invigilator / Registry</p>
+                <p class="text-xs text-gray-500">Ronnie University Academic Dept.</p>
+            </div>
+        </div>
+    </div>
+}

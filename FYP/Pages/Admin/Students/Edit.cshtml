@@ -1,0 +1,243 @@
+@page
+@model FYP.Pages.Admin.Students.EditModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Edit Student Profile";
+}
+
+<div class="max-w-4xl mx-auto">
+
+    <div class="mb-6 flex justify-between items-end">
+        <div>
+            <h1 class="text-2xl font-bold font-serif text-slate-800">Edit Student</h1>
+            <p class="text-sm text-slate-500">Update student records and academic progress.</p>
+        </div>
+        <a href="/Admin/Students/Index" class="text-sm font-medium text-slate-500 hover:text-blue-600 hover:underline transition-colors">
+            &larr; Back to Directory
+        </a>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+
+        <div class="p-8 space-y-6">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Student ID</label>
+                    <input asp-for="Input.UserId" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="e.g. 00AAA00000" />
+                    <span asp-validation-for="Input.UserId" class="text-xs text-red-500 mt-1 block"></span>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Full Name</label>
+                    <input asp-for="Input.FullName" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
+                    <span asp-validation-for="Input.FullName" class="text-xs text-red-500 mt-1 block"></span>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Email Address</label>
+                    <input asp-for="Input.Email" type="email" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
+                    <span asp-validation-for="Input.Email" class="text-xs text-red-500 mt-1 block"></span>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">IC Number</label>
+                    <input asp-for="Input.IcNumber" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="xxxxxx-xx-xxxx" />
+                    <span asp-validation-for="Input.IcNumber" class="text-xs text-red-500 mt-1 block"></span>
+                </div>
+                
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Home Address</label>
+                    <textarea asp-for="Input.Address" rows="2" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+                    <span asp-validation-for="Input.Address" class="text-xs text-red-500 mt-1 block"></span>
+                </div>
+            </div>
+
+            <div class="pt-6 border-t border-slate-100">
+                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Academic Details</h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    
+                    <div class="md:col-span-1">
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Department</label>
+                        <select asp-for="Input.DepartmentId" asp-items="Model.DepartmentOptions" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="">Select Department...</option>
+                        </select>
+                        <span asp-validation-for="Input.DepartmentId" class="text-xs text-red-500 mt-1 block"></span>
+                    </div>
+
+                    <div class="md:col-span-1">
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Enrolled Programme</label>
+                        <select asp-for="Input.ProgrammeId" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="">Select Programme...</option>
+                        </select>
+                        <span asp-validation-for="Input.ProgrammeId" class="text-xs text-red-500 mt-1 block"></span>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Session Joined (YYYYMM)</label>
+                        <input asp-for="Input.SessionJoined" type="number" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="e.g. 202309" />
+                        <span asp-validation-for="Input.SessionJoined" class="text-xs text-red-500 mt-1 block"></span>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Intake Year</label>
+                        <input asp-for="Input.IntakeYear" type="number" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="e.g. 2024" />
+                        <span asp-validation-for="Input.IntakeYear" class="text-xs text-red-500 mt-1 block"></span>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Current Year Level</label>
+                        <input asp-for="Input.YearLevel" type="number" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Max 3" />
+                        <span asp-validation-for="Input.YearLevel" class="text-xs text-red-500 mt-1 block"></span>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Current Semester</label>
+                        <input asp-for="Input.Semester" type="number" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Max 3" />
+                        <span asp-validation-for="Input.Semester" class="text-xs text-red-500 mt-1 block"></span>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Tutorial Group</label>
+                        <input asp-for="Input.TutorialGroup" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="e.g. G13" />
+                        <span asp-validation-for="Input.TutorialGroup" class="text-xs text-red-500 mt-1 block"></span>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Study Status</label>
+                        <select asp-for="Input.StudyStatus" asp-items="Model.StatusOptions" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="">Select Status...</option>
+                        </select>
+                        <span asp-validation-for="Input.StudyStatus" class="text-xs text-red-500 mt-1 block"></span>
+                    </div>
+                    
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Academic Advisor</label>
+                        <select asp-for="Input.AdvisoryId" asp-items="Model.AdvisoryOptions" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="">Select Advisor...</option>
+                        </select>
+                        <span asp-validation-for="Input.AdvisoryId" class="text-xs text-red-500 mt-1 block"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-6 border-t border-slate-100">
+                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Contact & Banking</h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Contact Number</label>
+                        <input asp-for="Input.ContactNo" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="e.g. 0123456789" />
+                        <span asp-validation-for="Input.ContactNo" class="text-xs text-red-500 mt-1 block"></span>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Emergency Contact</label>
+                        <input asp-for="Input.EmergencyContact" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="e.g. 0123456789" />
+                        <span asp-validation-for="Input.EmergencyContact" class="text-xs text-red-500 mt-1 block"></span>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Bank</label>
+                        <select asp-for="Input.BankId" asp-items="Model.BankOptions" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="">Select Bank...</option>
+                        </select>
+                        <span asp-validation-for="Input.BankId" class="text-xs text-red-500 mt-1 block"></span>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Account Number</label>
+                        <input asp-for="Input.BankAccNo" oninput="this.value = this.value.replace(/[^0-9]/g, '');" maxlength="10" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="10 digits" />
+                        <span asp-validation-for="Input.BankAccNo" class="text-xs text-red-500 mt-1 block"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-6 border-t border-slate-100">
+                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Profile & Security</h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Update Profile Picture</label>
+                        <input asp-for="Input.ProfilePicture" type="file" accept=".jpg,.jpeg,.png" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+                        <p class="text-xs text-slate-500 mt-1">Leave blank to keep current picture.</p>
+                        <span asp-validation-for="Input.ProfilePicture" class="text-xs text-red-500 mt-1 block"></span>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Reset Password</label>
+                        <div class="relative">
+                            <input asp-for="Input.NewPassword" type="password" id="resetPassword" placeholder="Leave blank to keep current password" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none pr-10" />
+                            <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-blue-600 focus:outline-none">
+                                <svg id="eyeOpen" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                <svg id="eyeClosed" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path></svg>
+                            </button>
+                        </div>
+                        <span asp-validation-for="Input.NewPassword" class="text-xs text-red-500 mt-1 block"></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="px-8 py-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-3">
+            <a href="/Admin/Students/Index" class="px-4 py-2 text-slate-600 font-bold hover:bg-slate-200 rounded-lg transition-colors">Cancel</a>
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition-all flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                Save Changes
+            </button>
+        </div>
+
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        // --- Show Password Toggle ---
+        function togglePassword() {
+            const input = document.getElementById('resetPassword');
+            const eyeOpen = document.getElementById('eyeOpen');
+            const eyeClosed = document.getElementById('eyeClosed');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                eyeOpen.classList.remove('hidden');
+                eyeClosed.classList.add('hidden');
+            } else {
+                input.type = 'password';
+                eyeOpen.classList.add('hidden');
+                eyeClosed.classList.remove('hidden');
+            }
+        }
+
+        // --- Cascading Dropdown Logic ---
+        document.addEventListener('DOMContentLoaded', function() {
+            const programmes = @Html.Raw(Model.ProgrammesJson);
+            const deptSelect = document.getElementById('Input_DepartmentId');
+            const progSelect = document.getElementById('Input_ProgrammeId');
+            const currentProgId = '@(Model.Input.ProgrammeId?.ToString() ?? "")';
+
+            function updateProgrammes() {
+                const deptId = deptSelect.value;
+                progSelect.innerHTML = '<option value="">Select Programme...</option>';
+                
+                if (deptId) {
+                    const filtered = programmes.filter(p => p.departmentId == deptId);
+                    filtered.forEach(p => {
+                        const opt = document.createElement('option');
+                        opt.value = p.id;
+                        opt.text = p.name;
+                        if (p.id == currentProgId) {
+                            opt.selected = true;
+                        }
+                        progSelect.add(opt);
+                    });
+                }
+            }
+
+            deptSelect.addEventListener('change', updateProgrammes);
+            updateProgrammes();
+        });
+    </script>
+}

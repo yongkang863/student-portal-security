@@ -1,0 +1,118 @@
+@page
+@model FYP.Pages.Student.LoginModel
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@{
+    ViewData["Title"] = "Student Login";
+    Layout = "_StudentAuthLayout";
+}
+
+<div class="mb-8">
+    <h2 class="text-3xl font-extrabold text-white tracking-tight">Welcome back</h2>
+    <p class="mt-2 text-sm text-slate-400">
+        @if (!Model.IsCaptchaVerified)
+        {
+            <text>Please complete the security check to access the login portal.</text>
+        }
+        else
+        {
+            <text>Enter your credentials to access your account.</text>
+        }
+    </p>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="mb-6 rounded-lg bg-red-500/10 p-4 border border-red-500/50 flex items-start animate-pulse">
+        <i class="fa-solid fa-circle-exclamation text-red-500 mt-1"></i>
+        <div class="ml-3">
+            <h3 class="text-sm font-medium text-red-400">Notice</h3>
+            <div class="mt-1 text-sm text-red-300/80">@Model.ErrorMessage</div>
+        </div>
+    </div>
+}
+
+<form method="post" class="space-y-6">
+    <input type="hidden" asp-for="IsCaptchaVerified" />
+
+    @if (!Model.IsCaptchaVerified)
+    {
+        <div class="flex justify-center mb-6">
+            <div class="g-recaptcha" data-sitekey="@Configuration["RecaptchaSettings:SiteKey"]" data-theme="dark"></div>
+        </div>
+
+        <button type="submit"
+                class="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-lg shadow-blue-900/20 text-sm font-bold text-white bg-blue-600 hover:bg-blue-500 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 focus:ring-blue-500 transition-all duration-200">
+            Proceed to Login
+        </button>
+    }
+    else
+    {
+        <div>
+            <label asp-for="StudentId" class="block text-sm font-medium text-slate-300 mb-1.5">Student ID</label>
+
+            <div class="relative group">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fa-regular fa-id-card text-slate-500 group-focus-within:text-blue-400 transition-colors"></i>
+                </div>
+                <input asp-for="StudentId" required
+                       class="block w-full pl-10 pr-3 py-3 bg-slate-900 border border-slate-800 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all sm:text-sm"
+                       placeholder="Student ID" />
+            </div>
+        </div>
+
+        <div>
+            <div class="flex items-center justify-between mb-1.5">
+                <label asp-for="Password" class="block text-sm font-medium text-slate-300">Password</label>
+                <div class="text-sm">
+                    <a asp-page="/Student/ForgotPassword" class="font-medium text-blue-400 hover:text-blue-300 transition-colors">
+                        Forgot password?
+                    </a>
+                </div>
+            </div>
+            <div class="relative group">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fa-solid fa-lock text-slate-500 group-focus-within:text-blue-400 transition-colors"></i>
+                </div>
+                <input asp-for="Password" type="password" id="loginPassword" required
+                       class="block w-full pl-10 pr-10 py-3 bg-slate-900 border border-slate-800 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all sm:text-sm"
+                       placeholder="••••••••" />
+
+                <div class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer text-slate-500 hover:text-slate-300" onclick="toggleLoginPassword()">
+                    <i class="fa-solid fa-eye" id="eyeIcon"></i>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit"
+                class="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-lg shadow-blue-900/20 text-sm font-bold text-white bg-blue-600 hover:bg-blue-500 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 focus:ring-blue-500 transition-all duration-200">
+            Sign In
+        </button>
+    }
+</form>
+
+<div class="mt-10 pt-6 border-t border-slate-800 text-center">
+    <p class="text-xs text-slate-500 mb-1">Having trouble accessing your account? Email to:</p>
+    <a href="mailto:support@example.invalid"
+       class="text-sm font-medium text-blue-400 hover:text-blue-300 hover:underline transition-colors">
+        support@example.invalid
+    </a>
+</div>
+
+@section Scripts {
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
+    <script>
+        function toggleLoginPassword() {
+            var input = document.getElementById("loginPassword");
+            var icon = document.getElementById("eyeIcon");
+
+            if (input.type === "password") {
+                input.type = "text";
+                if(icon) icon.classList.replace("fa-eye", "fa-eye-slash");
+            } else {
+                input.type = "password";
+                if(icon) icon.classList.replace("fa-eye-slash", "fa-eye");
+            }
+        }
+    </script>
+}

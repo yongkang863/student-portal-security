@@ -1,0 +1,82 @@
+@page
+@model FYP.Pages.Admin.Announcements.CreateModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Create Announcement";
+}
+
+<div class="max-w-4xl mx-auto">
+
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold font-serif text-slate-800">Post Announcement</h1>
+        <p class="text-slate-500 mt-2">Broadcast updates to staff and students securely.</p>
+    </div>
+
+    @if (!Model.IsPreview)
+    {
+        <form method="post" asp-page-handler="Preview" enctype="multipart/form-data" class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 space-y-6">
+
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2">Announcement Title</label>
+                <input asp-for="Input.Title" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none transition font-semibold" placeholder="e.g. Final Exam Schedule Release" />
+                <span asp-validation-for="Input.Title" class="text-red-500 text-xs"></span>
+            </div>
+
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2">Target Audience</label>
+                <select asp-for="Input.TargetRole" asp-items="Model.TargetOptions" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-600 outline-none bg-slate-50">
+                </select>
+                <p class="text-xs text-slate-400 mt-1">This will determine who receives the email notification.</p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2">Content</label>
+                <textarea asp-for="Input.Description" rows="6" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-600 outline-none" placeholder="Type your message here..."></textarea>
+                <span asp-validation-for="Input.Description" class="text-red-500 text-xs"></span>
+
+                <div class="mt-2 flex items-center gap-2 text-xs text-slate-500 bg-slate-100 p-2 rounded">
+                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                    <span>Anti-XSS Enabled: Malicious scripts are safely neutralized.</span>
+                </div>
+            </div>
+
+            <div class="p-5 border border-dashed border-slate-300 rounded-xl bg-slate-50">
+                <label class="block text-sm font-bold text-slate-700 mb-2">Attachment (Optional)</label>
+                <input type="file" asp-for="Input.UploadedFile" accept=".pdf, .png, .jpg, .jpeg" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200 transition-all cursor-pointer" />
+                <p class="text-xs text-slate-400 mt-2">Accepted formats: PDF, PNG, JPG.</p>
+                <span asp-validation-for="Input.UploadedFile" class="text-red-500 text-xs mt-1 block"></span>
+            </div>
+
+            <div class="pt-4 border-t border-slate-100 flex justify-end">
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg">Preview</button>
+            </div>
+        </form>
+    }
+    else
+    {
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 space-y-6">
+            <h2 class="text-2xl font-bold">Preview Announcement</h2>
+            <div class="p-4 bg-slate-50 border border-slate-200 rounded-lg">
+                <h3 class="text-xl font-bold text-blue-800">@Model.Input.Title</h3>
+                <p class="text-sm text-slate-500 mb-4">Target: @Model.Input.TargetRole</p>
+                <div class="text-slate-800">
+                    @Html.Raw(Model.SanitizedDescription.Replace("\n", "<br>"))
+                </div>
+            </div>
+
+            <form method="post" asp-page-handler="Confirm" class="flex justify-end gap-4">
+                <input type="hidden" asp-for="Input.Title" />
+                <input type="hidden" asp-for="Input.Description" />
+                <input type="hidden" asp-for="Input.TargetRole" />
+                <input type="hidden" asp-for="Input.SavedFilePath" />
+
+                <button type="button" onclick="window.history.back()" class="px-6 py-3 border border-slate-300 text-slate-600 font-bold rounded-xl hover:bg-slate-50 transition">
+                    Edit Content
+                </button>
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition">
+                    Confirm & Publish
+                </button>
+            </form>
+        </div>
+    }
+</div>

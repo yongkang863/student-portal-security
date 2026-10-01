@@ -1,0 +1,87 @@
+@page
+@model FYP.Pages.Staff.MfaVerifyModel
+@{
+    Layout = "_AuthLayout";
+    ViewData["Title"] = "Verify Identity";
+}
+
+<div>
+    <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Security Verification</h1>
+
+    <p class="text-sm text-gray-500 mt-2 mb-8">
+        The OTP has been sent to <span class="font-semibold text-black">@Model.MaskedEmail</span>. Please check your inbox.
+    </p>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-md shadow-sm mb-6">
+            <p class="text-sm text-green-700 font-medium">@TempData["SuccessMessage"]</p>
+        </div>
+    }
+
+    @if (Model.IsFatalError)
+    {
+        <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-md shadow-sm mb-6">
+            <p class="text-sm text-red-700 font-medium">@Model.ErrorMessage</p>
+            <p class="mt-1 text-xs text-red-600">Redirecting to login page...</p>
+        </div>
+        <script>setTimeout(function() { window.location.href = '/Staff/Login'; }, 3500);</script>
+    }
+    else
+    {
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-md shadow-sm mb-6 animate-pulse">
+                <p class="text-sm text-red-700 font-medium">@Model.ErrorMessage</p>
+            </div>
+        }
+
+        <form method="post" asp-page-handler="Verify" class="mb-6">
+            <div>
+                <label class="sr-only">One Time Password</label>
+                <input asp-for="Code" type="text" maxlength="6" autocomplete="off"
+                       class="block w-full text-center text-3xl font-mono tracking-[0.5em] rounded-lg border border-gray-300 px-3 py-4 placeholder-gray-300 shadow-sm focus:border-black focus:ring-2 focus:ring-black outline-none transition-all bg-gray-50 focus:bg-white"
+                       placeholder="------" required />
+            </div>
+
+            <button type="submit" class="mt-6 w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-md text-sm font-semibold text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transform transition hover:-translate-y-0.5">
+                Verify Identity
+            </button>
+        </form>
+    }
+
+    @if (!Model.IsFatalError)
+    {
+        <div class="mt-8 border-t border-gray-200 pt-6">
+            <form method="post" asp-page-handler="Resend" id="resendForm">
+                <p class="text-sm text-gray-600 mb-3">Didn't receive the code?</p>
+                <button type="submit" id="resendBtn" disabled
+                        class="flex w-full justify-center rounded-lg border border-gray-300 bg-white py-2.5 px-4 text-sm font-medium text-gray-400 shadow-sm cursor-not-allowed transition-all">
+                    Resend OTP <span id="timerText" class="ml-1">(60s)</span>
+                </button>
+            </form>
+
+            <div class="mt-6 text-center">
+                <a href="/Staff/Login" class="text-sm font-medium text-black hover:underline transition-colors">Return to Login</a>
+            </div>
+        </div>
+
+        <script>
+            let timeLeft = 60;
+            const resendBtn = document.getElementById("resendBtn");
+            const timerText = document.getElementById("timerText");
+
+            const countdown = setInterval(() => {
+                timeLeft--;
+                timerText.innerText = `(${timeLeft}s)`;
+                if (timeLeft <= 0) {
+                    clearInterval(countdown);
+                    resendBtn.disabled = false;
+                    resendBtn.classList.remove("text-gray-400", "cursor-not-allowed");
+                    resendBtn.classList.add("text-gray-900", "hover:bg-gray-50", "cursor-pointer");
+                    timerText.innerText = "";
+                }
+            }, 1000);
+        </script>
+    }
+</div>

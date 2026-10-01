@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Ronnie University</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Smooth Fade In */
+        @@keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        /* --- AUTOFILL FIX --- */
+        /* This forces the browser to paint the auto-filled input background with Slate-900 color */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
+        input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px #0f172a inset !important; /* #0f172a is Slate-900 */
+            -webkit-text-fill-color: white !important;
+            caret-color: white !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+    </style>
+</head>
+<body class="h-screen bg-slate-950 text-slate-200 overflow-hidden">
+
+    <div class="flex min-h-full">
+        <div class="hidden lg:flex lg:w-1/2 relative flex-col justify-between p-12 text-white">
+
+            <img src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=2070&auto=format&fit=crop"
+                 class="absolute inset-0 w-full h-full object-cover z-0"
+                 alt="University Campus">
+
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-slate-900/60 z-10"></div>
+
+            <div class="relative z-20 flex items-center space-x-3">
+                <div class="w-10 h-10 bg-white/10 backdrop-blur-md rounded-lg flex items-center justify-center border border-white/20 shadow-lg">
+                    <i class="fa-solid fa-graduation-cap text-xl text-white"></i>
+                </div>
+                <span class="text-xl font-bold tracking-wide text-white drop-shadow-md">Ronnie University</span>
+            </div>
+
+            <div class="relative z-20 max-w-lg">
+                <h2 class="text-4xl font-bold mb-4 leading-tight drop-shadow-lg">
+                    Empowering your future,<br> <span class="text-blue-400">one step at a time.</span>
+                </h2>
+                <p class="text-slate-300 text-lg font-light drop-shadow-md">
+                    Access your secure student portal to view results, manage courses, and stay connected.
+                </p>
+            </div>
+
+            <div class="relative z-20 text-xs text-slate-400">
+                &copy; 2026 Ronnie University. All rights reserved.
+            </div>
+        </div>
+
+        <div class="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-20 xl:px-24 bg-slate-950 overflow-y-auto border-l border-slate-800">
+            <div class="mx-auto w-full max-w-sm lg:max-w-md animate-fade-in-up">
+
+                <div class="lg:hidden text-center mb-10">
+                    <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-slate-800 border border-slate-700 text-blue-500 mb-4">
+                        <i class="fa-solid fa-graduation-cap text-2xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white">Ronnie University</h2>
+                </div>
+
+                @RenderBody()
+
+            </div>
+        </div>
+    </div>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

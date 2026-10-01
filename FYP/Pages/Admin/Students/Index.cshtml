@@ -1,0 +1,472 @@
+@page
+@model FYP.Pages.Admin.Students.IndexModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Student Directory";
+}
+
+<div class="space-y-6">
+
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold font-serif text-slate-800">Student Directory</h1>
+            <p class="text-sm text-slate-500 mt-1">Manage all enrolled students and their academic records.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <button type="button" id="openAdvanceModalBtn" onclick="openAdvanceModal()" class="inline-flex items-center justify-center bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-lg transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:-translate-y-0">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                Advance Selected
+            </button>
+            <a href="/Admin/Students/Register" class="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-lg transition-all hover:-translate-y-0.5">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+                Add New Student
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+        <form method="get" class="space-y-4">
+            
+            <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
+                <div class="w-full md:w-1/3 relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                    <input asp-for="SearchQuery" type="text" class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm" placeholder="Search by Name or Student ID...">
+                    </div>
+                
+                    <div class="flex items-center gap-3 w-full md:w-auto">
+                        <button type="submit" class="flex-1 md:flex-none bg-slate-800 hover:bg-slate-900 text-white font-bold py-2 px-6 rounded-lg transition-colors text-sm">
+                            Apply Filters
+                        </button>
+                        <a href="/Admin/Students/Index" class="flex-1 md:flex-none bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold py-2 px-6 rounded-lg transition-colors text-sm text-center">
+                            Clear
+                        </a>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 pt-4 border-t border-slate-100">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Department</label>
+                        <select asp-for="FilterDepartmentId" asp-items="Model.DepartmentOptions" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+                            <option value="">All</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Programme</label>
+                        <select asp-for="FilterProgrammeId" asp-items="Model.ProgrammeOptions" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+                            <option value="">All</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Group</label>
+                        <select asp-for="FilterTutorialGroup" asp-items="Model.TutorialGroupOptions" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+                            <option value="">All</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Session</label>
+                        <select asp-for="FilterSessionJoined" asp-items="Model.SessionOptions" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+                            <option value="">All</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Year</label>
+                        <select asp-for="FilterYearLevel" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+                            <option value="">All</option>
+                            <option value="1">Year 1</option>
+                            <option value="2">Year 2</option>
+                            <option value="3">Year 3</option>
+                            <option value="4">Year 4</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Semester</label>
+                        <select asp-for="FilterSemester" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+                            <option value="">All</option>
+                            <option value="1">Sem 1</option>
+                            <option value="2">Sem 2</option>
+                            <option value="3">Sem 3</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Status</label>
+                        <select asp-for="FilterStudyStatus" asp-items="Model.StatusOptions" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+                            <option value="">All</option>
+                        </select>
+                    </div>
+                </div>
+            
+            </form>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        
+            <div class="bg-slate-50 border-b border-slate-200 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="text-sm font-semibold text-slate-700 mr-2">Batch Selection:</span>
+                    <button type="button" onclick="selectAll()" class="text-xs font-bold px-3 py-1.5 bg-white border border-slate-300 rounded hover:bg-slate-100 text-slate-700 transition-colors shadow-sm">Select All Active</button>
+                    <button type="button" onclick="selectEligible()" class="text-xs font-bold px-3 py-1.5 bg-blue-50 border border-blue-200 rounded hover:bg-blue-100 text-blue-700 transition-colors shadow-sm">Select Eligible Only (No F / Unassigned)</button>
+                    <button type="button" onclick="clearSelection()" class="text-xs font-bold px-3 py-1.5 bg-white border border-slate-300 rounded hover:bg-slate-100 text-slate-700 transition-colors shadow-sm">Clear</button>
+                </div>
+                <div class="text-sm font-medium text-slate-600">
+                    <span id="selectedCountDisplay" class="font-bold text-slate-800">0</span> student(s) selected
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-slate-50 text-slate-500 border-b border-slate-200">
+                        <tr>
+                            <th class="px-6 py-4 font-semibold w-12">
+                                <input type="checkbox" id="selectAllCheckbox" onchange="toggleAll(this)" class="w-4 h-4 text-blue-600 bg-white border-slate-300 rounded focus:ring-blue-500 cursor-pointer">
+                            </th>
+                            <th class="px-6 py-4 font-semibold">Student Info</th>
+                            <th class="px-6 py-4 font-semibold">Programme & Status</th>
+                            <th class="px-6 py-4 font-semibold">Account Status</th>
+                            <th class="px-6 py-4 font-semibold text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @if (!Model.StudentList.Any())
+                        {
+                            <tr>
+                                <td colspan="5" class="px-6 py-12 text-center text-slate-500">
+                                    <svg class="mx-auto h-12 w-12 text-slate-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    <p class="text-base font-semibold">No students found matching your filters.</p>
+                                    <p class="text-sm mt-1">Try adjusting your search criteria or clearing the filters.</p>
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var student in Model.StudentList)
+                            {
+                                <tr class="hover:bg-slate-50/80 transition-colors">
+                                    <td class="px-6 py-4">
+                                        @if (student.StudyStatus == "Active")
+                                        {
+                                            bool isEligible = Model.SafeToAdvance.ContainsKey(student.Uid) && Model.SafeToAdvance[student.Uid];
+                                            <input type="checkbox" value="@student.Uid" data-eligible="@isEligible.ToString().ToLower()" class="student-checkbox w-4 h-4 text-blue-600 bg-white border-slate-300 rounded focus:ring-blue-500 cursor-pointer">
+                                        }
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-sm">
+                                                @(student.FullName?.Substring(0, 1) ?? "U")
+                                            </div>
+                                            <div>
+                                                <p class="font-bold text-slate-800">@student.FullName</p>
+                                                <p class="text-xs text-slate-500 font-mono">@student.UserId</p>
+                                                <p class="text-xs text-slate-400">@student.Email</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <p class="text-slate-700 font-medium">@(student.Programme?.Name ?? "Unassigned")</p>
+                                        <div class="flex items-center gap-2 mt-1">
+                                            @if (student.SessionJoined != null)
+                                            {
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
+                                                    S: @student.SessionJoined
+                                                </span>
+                                            }
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-50 text-purple-700 border border-purple-100">
+                                                Y@(student.YearLevel ?? 1) S@(student.Semester ?? 1)
+                                            </span>
+                                            @if (!string.IsNullOrEmpty(student.TutorialGroup))
+                                            {
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-50 text-orange-700 border border-orange-100">
+                                                    @student.TutorialGroup
+                                                </span>
+                                            }
+                                            @if (!string.IsNullOrEmpty(student.StudyStatus))
+                                            {
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
+                                                    @student.StudyStatus
+                                                </span>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        @if (student.LockedUntil.HasValue && student.LockedUntil > DateTime.Now)
+                                        {
+                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Locked
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Active
+                                            </span>
+                                        }
+                                    </td>
+                                    <td class="px-6 py-4 text-right">
+                                        <div class="flex items-center justify-end gap-2">
+                                            <form method="post" asp-page-handler="ToggleLock" class="m-0">
+                                                <input type="hidden" name="uid" value="@student.Uid" />
+                                                @if (student.LockedUntil.HasValue && student.LockedUntil > DateTime.Now)
+                                                {
+                                                    <button type="submit" class="p-2 text-slate-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-all" title="Unlock Account" onclick="return confirm('Are you sure you want to unlock this account?');">
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path></svg>
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <button type="submit" class="p-2 text-slate-400 hover:text-orange-500 hover:bg-orange-50 rounded-lg transition-all" title="Lock Account" onclick="return confirm('Are you sure you want to manually lock this account?');">
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                                                    </button>
+                                                }
+                                            </form>
+
+                                            <a href="/Admin/Students/Edit?uid=@student.Uid" class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Edit">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                            </a>
+
+                                            <button type="button" onclick="openDeleteModal(@student.Uid, '@student.FullName')" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all" title="Delete">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="deleteModal" class="fixed inset-0 z-[100] hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity opacity-0" id="deleteBackdrop"></div>
+        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg opacity-0 scale-95" id="deletePanel">
+                    <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                        <div class="sm:flex sm:items-start">
+                            <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                                <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                                </svg>
+                            </div>
+                            <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+                                <h3 class="text-lg font-bold leading-6 text-slate-900" id="modal-title">Delete Student Account</h3>
+                                <div class="mt-2">
+                                    <p class="text-sm text-slate-500">
+                                        Are you sure you want to delete <span id="deleteUserName" class="font-bold text-slate-800"></span>?<br><br>
+                                        This action cannot be undone. All associated records (enrollments, grades, logs) may also be permanently affected.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                        <form method="post" asp-page-handler="Delete">
+                            <input type="hidden" name="uid" id="deleteUserId" value="" />
+                            <button type="submit" class="inline-flex w-full justify-center rounded-lg bg-red-600 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto">
+                                Yes, Delete Account
+                            </button>
+                        </form>
+                        <button type="button" onclick="closeDeleteModal()" class="mt-3 inline-flex w-full justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50 sm:mt-0 sm:w-auto">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="advanceModal" class="relative z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div id="advanceBackdrop" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity opacity-0"></div>
+        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <div id="advancePanel" class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg opacity-0 scale-95">
+                    <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                        <div class="sm:flex sm:items-start">
+                            <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                                <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            </div>
+                            <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left w-full">
+                                <h3 class="text-xl font-bold leading-6 text-slate-900" id="modal-title">Advance Selected Students</h3>
+                                <div class="mt-3 text-sm text-slate-600 space-y-2">
+                                    <p>This will permanently modify the records of <strong id="modalSelectedCountDisplay" class="text-red-600">0</strong> selected active student(s):</p>
+                                    <ul class="list-disc list-inside ml-2">
+                                        <li>Students will progress to the next semester.</li>
+                                        <li>Students in Semester 3 will move to Semester 1 of the next year.</li>
+                                        <li>Students completing their final semester will be marked as <strong>Inactive</strong>.</li>
+                                    </ul>
+                                    <div class="bg-red-50 text-red-700 p-3 rounded-lg border border-red-200 mt-4 font-semibold">
+                                        This action CANNOT be undone. Please ensure all grades and records for the current semester are finalized.
+                                    </div>
+                                </div>
+                            
+                                <form method="post" asp-page-handler="AdvanceSemester" id="advanceForm" class="mt-5">
+                                    <label for="confirmInput" class="block text-sm font-medium text-slate-700 mb-2">
+                                        Type <span class="font-bold text-red-600">confirm</span> to proceed:
+                                    </label>
+                                    <input type="text" name="confirmAdvance" id="confirmInput" autocomplete="off"
+                                           class="w-full rounded-lg border-slate-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm px-4 py-2 border"
+                                           onkeyup="checkConfirmText()">
+                                
+                                    <div class="mt-5 sm:mt-6 sm:flex sm:flex-row-reverse">
+                                        <button type="submit" id="advanceBtn" disabled
+                                                class="inline-flex w-full justify-center rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 disabled:bg-slate-300 disabled:cursor-not-allowed sm:ml-3 sm:w-auto transition-colors">
+                                            Execute Advancement
+                                        </button>
+                                        <button type="button" onclick="closeAdvanceModal()"
+                                                class="mt-3 inline-flex w-full justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50 sm:mt-0 sm:w-auto">
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const advanceForm = document.getElementById('advanceForm');
+        const selectedCountDisplay = document.getElementById('selectedCountDisplay');
+        const modalSelectedCountDisplay = document.getElementById('modalSelectedCountDisplay');
+        const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+        const openAdvanceModalBtn = document.getElementById('openAdvanceModalBtn');
+
+        function updateSelectedState() {
+            document.querySelectorAll('.dynamic-student-id').forEach(e => e.remove());
+        
+            const checkedBoxes = document.querySelectorAll('.student-checkbox:checked');
+            const count = checkedBoxes.length;
+        
+            selectedCountDisplay.innerText = count;
+            if(modalSelectedCountDisplay) modalSelectedCountDisplay.innerText = count;
+
+            checkedBoxes.forEach(cb => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'selectedStudentIds';
+                input.value = cb.value;
+                input.className = 'dynamic-student-id';
+                advanceForm.appendChild(input);
+            });
+
+            if(openAdvanceModalBtn) {
+                openAdvanceModalBtn.disabled = count === 0;
+                if(count === 0) {
+                    openAdvanceModalBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                } else {
+                    openAdvanceModalBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            }
+        }
+
+        function toggleAll(source) {
+            document.querySelectorAll('.student-checkbox').forEach(cb => cb.checked = source.checked);
+            updateSelectedState();
+        }
+
+        function selectAll() {
+            document.querySelectorAll('.student-checkbox').forEach(cb => cb.checked = true);
+            selectAllCheckbox.checked = true;
+            updateSelectedState();
+        }
+
+        function selectEligible() {
+            document.querySelectorAll('.student-checkbox').forEach(cb => {
+                cb.checked = (cb.getAttribute('data-eligible') === 'true');
+            });
+            selectAllCheckbox.checked = false;
+            updateSelectedState();
+        }
+
+        function clearSelection() {
+            document.querySelectorAll('.student-checkbox').forEach(cb => cb.checked = false);
+            selectAllCheckbox.checked = false;
+            updateSelectedState();
+        }
+
+        document.addEventListener('change', function(e) {
+            if(e.target && e.target.classList.contains('student-checkbox')) {
+                updateSelectedState();
+            
+                const totalBoxes = document.querySelectorAll('.student-checkbox').length;
+                const checkedBoxes = document.querySelectorAll('.student-checkbox:checked').length;
+                selectAllCheckbox.checked = (totalBoxes === checkedBoxes && totalBoxes > 0);
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', updateSelectedState);
+
+        const deleteModal = document.getElementById('deleteModal');
+        const deleteBackdrop = document.getElementById('deleteBackdrop');
+        const deletePanel = document.getElementById('deletePanel');
+        const userIdInput = document.getElementById('deleteUserId');
+        const userNameSpan = document.getElementById('deleteUserName');
+
+        function openDeleteModal(uid, name) {
+            userIdInput.value = uid;
+            userNameSpan.innerText = name;
+            deleteModal.classList.remove('hidden');
+            setTimeout(() => {
+                deleteBackdrop.classList.remove('opacity-0');
+                deletePanel.classList.remove('opacity-0', 'scale-95');
+            }, 10);
+        }
+
+        function closeDeleteModal() {
+            deleteBackdrop.classList.add('opacity-0');
+            deletePanel.classList.add('opacity-0', 'scale-95');
+            setTimeout(() => {
+                deleteModal.classList.add('hidden');
+            }, 300);
+        }
+
+        const advModal = document.getElementById('advanceModal');
+        const advBackdrop = document.getElementById('advanceBackdrop');
+        const advPanel = document.getElementById('advancePanel');
+        const confirmInput = document.getElementById('confirmInput');
+        const advanceBtn = document.getElementById('advanceBtn');
+
+        function openAdvanceModal() {
+            const count = document.querySelectorAll('.student-checkbox:checked').length;
+            if (count === 0) return;
+
+            confirmInput.value = '';
+            advanceBtn.disabled = true;
+            advModal.classList.remove('hidden');
+            setTimeout(() => {
+                advBackdrop.classList.remove('opacity-0');
+                advPanel.classList.remove('opacity-0', 'scale-95');
+            }, 10);
+            setTimeout(() => {
+                confirmInput.focus();
+            }, 100);
+        }
+
+        function closeAdvanceModal() {
+            advBackdrop.classList.add('opacity-0');
+            advPanel.classList.add('opacity-0', 'scale-95');
+            setTimeout(() => {
+                advModal.classList.add('hidden');
+            }, 300);
+        }
+
+        function checkConfirmText() {
+            if (confirmInput.value.trim().toLowerCase() === 'confirm') {
+                advanceBtn.disabled = false;
+            } else {
+                advanceBtn.disabled = true;
+            }
+        }
+
+        advanceForm.addEventListener('submit', function(e) {
+            if (confirmInput.value.trim().toLowerCase() !== 'confirm') {
+                e.preventDefault();
+            }
+        });
+    </script>

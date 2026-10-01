@@ -1,0 +1,125 @@
+@page
+@model FYP.Pages.Staff.AdvisorModel
+@{
+    ViewData["Title"] = "Advisor Students";
+    Layout = "_StaffLayout";
+}
+
+<div class="space-y-6">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h2 class="text-2xl font-bold text-slate-800 tracking-tight">Advisor Students</h2>
+            <p class="text-slate-500 mt-1 text-sm">Manage and view the academic progress of your assigned students.</p>
+        </div>
+
+        <form method="get" class="flex flex-col sm:flex-row items-center gap-3">
+            
+            <select name="ProgrammeFilter" class="pr-8 pl-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                <option value="">All Programmes</option>
+                @if (Model.AvailableProgrammes != null)
+                {
+                    foreach (var prog in Model.AvailableProgrammes)
+                    {
+                        if (Model.ProgrammeFilter == prog.Id)
+                        {
+                            <option value="@prog.Id" selected>@prog.Code</option>
+                        }
+                        else
+                        {
+                            <option value="@prog.Id">@prog.Code</option>
+                        }
+                    }
+                }
+            </select>
+
+            <div class="relative">
+                <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <input type="text" name="SearchQuery" value="@Model.SearchQuery" placeholder="Search name, ID or email..." class="pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full md:w-64">
+            </div>
+            
+            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                Search
+            </button>
+            
+            @if (!string.IsNullOrEmpty(Model.SearchQuery) || Model.ProgrammeFilter.HasValue)
+            {
+                <a href="/Staff/Advisor" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-lg text-sm font-medium hover:bg-slate-200 transition-colors text-center">
+                    Clear
+                </a>
+            }
+        </form>
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+        @if (Model.Advisees != null && Model.Advisees.Any())
+        {
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm whitespace-nowrap">
+                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-medium">
+                        <tr>
+                            <th scope="col" class="px-6 py-4">Student Name</th>
+                            <th scope="col" class="px-6 py-4">Email Address</th>
+                            <th scope="col" class="px-6 py-4">Programme</th>
+                            <th scope="col" class="px-6 py-4">Status</th>
+                            <th scope="col" class="px-6 py-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-slate-700">
+                        @foreach (var student in Model.Advisees)
+                        {
+                            <tr class="hover:bg-slate-50 transition-colors">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs">
+                                            @student.FullName?.Substring(0, 1).ToUpper()
+                                        </div>
+                                        <div>
+                                            <p class="font-semibold text-slate-800">@student.FullName</p>
+                                            <p class="text-xs text-slate-500">ID: @student.Uid</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-slate-600">
+                                    <a href="mailto:@student.Email" class="hover:text-blue-600 hover:underline">@student.Email</a>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
+                                        @(student.Programme?.Code ?? "Unassigned")
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                                        Active
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <a href="/Staff/StudentDetails?id=@student.Uid" class="text-blue-600 hover:text-blue-800 font-medium text-sm transition-colors">
+                                        View Details
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 text-xs text-slate-500 flex justify-between items-center">
+                <span>Showing @Model.Advisees.Count assigned student(s)</span>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-16 px-6">
+                <div class="w-16 h-16 mx-auto bg-slate-100 rounded-full flex items-center justify-center mb-4">
+                    <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                </div>
+                <h3 class="text-lg font-medium text-slate-900 mb-1">No students found</h3>
+                <p class="text-slate-500 text-sm max-w-sm mx-auto">
+                    @(string.IsNullOrEmpty(Model.SearchQuery) && !Model.ProgrammeFilter.HasValue
+                        ? "You currently do not have any academic advisees assigned to you for this semester."
+                        : "No students match your current search and filter criteria.")
+                </p>
+            </div>
+        }
+    </div>
+</div>

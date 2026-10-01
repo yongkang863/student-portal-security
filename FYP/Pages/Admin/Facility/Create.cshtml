@@ -1,0 +1,67 @@
+@page
+@model FYP.Pages.Admin.Facilities.CreateModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Create Facility";
+}
+
+<div class="max-w-4xl mx-auto py-8">
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-6 border-b border-slate-100 bg-slate-50">
+            <h2 class="text-2xl font-extrabold text-slate-800">Add New Facility</h2>
+            <p class="text-slate-500 text-sm mt-1">Register a new facility for student booking.</p>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="p-6 space-y-6">
+
+            <div>
+                <label asp-for="NewFacility.Name" class="block text-sm font-bold text-slate-700 mb-2">Facility Name</label>
+                <input asp-for="NewFacility.Name" type="text" class="w-full px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="e.g., Main Badminton Court" required />
+                <span asp-validation-for="NewFacility.Name" class="text-red-500 text-xs mt-1 block"></span>
+            </div>
+
+            <div>
+                <label asp-for="NewFacility.FacilityType" class="block text-sm font-bold text-slate-700 mb-2">Facility Type</label>
+                <select asp-for="NewFacility.FacilityType" class="w-full px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                    <option value="">-- Select Type --</option>
+                    <option value="Sports">Sports</option>
+                    <option value="Study Room">Study Room</option>
+                    <option value="Hall">Hall</option>
+                    <option value="Equipment">Equipment</option>
+                </select>
+                <span asp-validation-for="NewFacility.FacilityType" class="text-red-500 text-xs mt-1 block"></span>
+            </div>
+
+            <div>
+                <label asp-for="NewFacility.StatusId" class="block text-sm font-bold text-slate-700 mb-2">Status</label>
+                <select asp-for="NewFacility.StatusId" class="w-full px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                    <option value="4">Available</option>
+                    <option value="5">Unavailable </option>
+                </select>
+                <span asp-validation-for="NewFacility.StatusId" class="text-red-500 text-xs mt-1 block"></span>
+            </div>
+
+            <div>
+                <label asp-for="NewFacility.Remark" class="block text-sm font-bold text-slate-700 mb-2">Remarks / Details</label>
+                <textarea asp-for="NewFacility.Remark" rows="3" class="w-full px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="Enter any specific rules or details..."></textarea>
+                <span asp-validation-for="NewFacility.Remark" class="text-red-500 text-xs mt-1 block"></span>
+            </div>
+
+            <div class="p-4 border border-dashed border-slate-300 rounded-xl bg-slate-50">
+                <label class="block text-sm font-bold text-slate-700 mb-2">Upload Facility Photos</label>
+                <input type="file" asp-for="UploadedPhotos" multiple accept="image/*" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-all" />
+                <p class="text-xs text-slate-400 mt-2">You can select multiple images (JPG, PNG).</p>
+                <span asp-validation-for="UploadedPhotos" class="text-red-500 text-sm font-bold mt-2 block"></span>
+            </div>
+
+            <div class="pt-4 flex justify-end gap-3">
+                <a href="/Admin/Facility/Index" class="px-5 py-2.5 bg-slate-100 text-slate-600 hover:bg-slate-200 font-bold rounded-xl transition-all">Cancel</a>
+                <button type="submit" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg transition-all">Create Facility</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

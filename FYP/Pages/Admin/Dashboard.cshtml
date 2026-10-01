@@ -1,0 +1,153 @@
+@page
+@model FYP.Pages.Admin.DashboardModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="space-y-8 max-w-7xl mx-auto">
+
+    <div class="relative overflow-hidden bg-gradient-to-r from-slate-800 to-slate-900 rounded-3xl p-10 shadow-xl text-white">
+        <div class="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-blue-500 opacity-10 rounded-full blur-2xl"></div>
+
+        <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+                <h1 class="text-3xl font-extrabold tracking-tight mb-2">Welcome, Administrator! 👋</h1>
+                <p class="text-slate-300 text-lg">System Overview for @DateTime.Now.ToString("dddd, dd MMMM yyyy")</p>
+            </div>
+
+            <div class="flex gap-3">
+                <a href="/Admin/Announcements/Create" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg transition-all flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path></svg>
+                    Post Announcement
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+            <div>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Pending Leaves</p>
+                <p class="text-3xl font-extrabold text-slate-800 mt-1">@Model.PendingLeaveCount</p>
+                <a href="/Admin/Leaves" class="text-xs font-bold text-blue-600 hover:underline mt-2 block">Review Requests &rarr;</a>
+            </div>
+            <div class="p-3 bg-blue-50 text-blue-600 rounded-xl">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+            <div>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">New Bookings</p>
+                <p class="text-3xl font-extrabold text-slate-800 mt-1">@Model.NewBookingCount</p>
+                <a href="/Admin/Bookings" class="text-xs font-bold text-purple-600 hover:underline mt-2 block">Manage Facilities &rarr;</a>
+            </div>
+            <div class="p-3 bg-purple-50 text-purple-600 rounded-xl">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+            <div>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Overdue Bills</p>
+                <p class="text-3xl font-extrabold text-slate-800 mt-1">@Model.OverduePaymentCount</p>
+                <a href="/Admin/Bill/Index" class="text-xs font-bold text-red-600 hover:underline mt-2 block">View Finances &rarr;</a>
+            </div>
+            <div class="p-3 bg-red-50 text-red-600 rounded-xl">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                <h3 class="font-bold text-slate-800">Recent System Logins</h3>
+                <span class="text-xs font-medium text-slate-400">Real-time Audit</span>
+            </div>
+            <table class="w-full text-sm text-left">
+                <thead class="bg-slate-50 text-slate-500">
+                    <tr>
+                        <th class="px-6 py-3 font-semibold">User</th>
+                        <th class="px-6 py-3 font-semibold">Role</th>
+                        <th class="px-6 py-3 font-semibold">Time</th>
+                        <th class="px-6 py-3 font-semibold">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @foreach (var log in Model.RecentLogins)
+                    {
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-6 py-3 font-medium text-slate-700">@log.UserName</td>
+                            <td class="px-6 py-3">
+                                <span class="px-2 py-1 rounded text-xs font-bold @(log.Role == "Admin" ? "bg-purple-100 text-purple-700" : (log.Role == "Staff" ? "bg-blue-100 text-blue-700" : "bg-green-100 text-green-700"))">
+                                    @log.Role
+                                </span>
+                            </td>
+                            <td class="px-6 py-3 text-slate-500 text-xs">@log.Time.ToString("dd MMM HH:mm")</td>
+                            <td class="px-6 py-3">
+                                @if (log.Status == "Success")
+                                {
+                                    <span class="text-green-600 font-bold text-xs flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                        Success
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-red-600 font-bold text-xs flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                        Failed
+                                    </span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="space-y-6">
+            <div class="flex items-center justify-between">
+                <h3 class="font-bold text-slate-800">Active Announcements</h3>
+                <a href="/Admin/Announcements" class="text-sm font-semibold text-blue-600 hover:underline">View All &rarr;</a>
+            </div>
+
+            @if (Model.RecentAnnouncements.Any())
+            {
+                <div class="space-y-4">
+                    @foreach (var item in Model.RecentAnnouncements)
+                    {
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow relative overflow-hidden group">
+                            <div class="absolute left-0 top-0 h-full w-1 bg-slate-300 group-hover:bg-blue-500 transition-colors"></div>
+
+                            <div class="flex justify-between items-start mb-2 pl-2">
+                                <span class="px-2 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wider rounded">
+                                    @item.Category
+                                </span>
+                                <span class="text-xs text-slate-400">@item.PublishDate.ToString("dd MMM yyyy")</span>
+                            </div>
+
+                            <h4 class="text-md font-bold text-slate-800 pl-2 group-hover:text-blue-700 transition-colors">@item.Title</h4>
+                            <p class="text-slate-500 text-sm mt-1 pl-2 line-clamp-2">
+                                @Html.Raw(item.Description)
+                            </p>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="bg-white p-10 rounded-2xl border border-dashed border-slate-300 text-center">
+                    <p class="text-slate-500">No announcements posted yet.</p>
+                </div>
+            }
+        </div>
+
+    </div>
+
+</div>

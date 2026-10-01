@@ -1,0 +1,371 @@
+@page
+@model FYP.Pages.Student.TimetableModel
+@{
+    ViewData["Title"] = "Course Timetable";
+    Layout = "_StudentLayout";
+    bool isViewingRealToday = Model.CurrentViewDate == DateOnly.FromDateTime(DateTime.Today);
+    var currentTime = TimeOnly.FromDateTime(DateTime.Now);
+}
+
+<div class="animate-fade-in-up bg-black/40 backdrop-blur-xl rounded-2xl border border-purple-500/20 p-6 mb-8 shadow-[0_8px_32px_0_rgba(88,28,135,0.3)] relative">
+
+    @* Header & Week Selector *@
+    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 border-b border-purple-500/20 pb-4">
+        <div>
+            <h2 class="text-2xl font-bold text-white tracking-tight flex items-center gap-3">
+                <i class="fa-solid fa-calendar-days text-fuchsia-400"></i>
+                Weekly Schedule
+            </h2>
+            <p class="text-purple-300/70 text-sm mt-1">Viewing week: <span class="text-fuchsia-300 font-medium">@Model.StartOfWeek.ToString("dd MMM yyyy") - @Model.EndOfWeek.ToString("dd MMM yyyy")</span></p>
+        </div>
+
+        <form method="get" class="flex items-center gap-3 bg-purple-950/40 p-2 rounded-xl border border-purple-500/30">
+            <a href="?SelectedDate=@(Model.StartOfWeek.AddDays(-7).ToString("yyyy-MM-dd"))" class="w-8 h-8 flex items-center justify-center rounded-lg bg-purple-900/50 text-purple-300 hover:text-fuchsia-300 hover:bg-purple-800 transition-colors">
+                <i class="fa-solid fa-chevron-left text-xs"></i>
+            </a>
+
+            <div class="relative">
+                <input type="date" name="SelectedDate" value="@((Model.SelectedDate ?? DateTime.Today).ToString("yyyy-MM-dd"))"
+                       onchange="this.form.submit()"
+                       class="bg-transparent border-none text-purple-100 text-sm font-medium focus:ring-0 cursor-pointer [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:opacity-70 hover:[&::-webkit-calendar-picker-indicator]:opacity-100" />
+            </div>
+
+            <a href="?SelectedDate=@(Model.StartOfWeek.AddDays(7).ToString("yyyy-MM-dd"))" class="w-8 h-8 flex items-center justify-center rounded-lg bg-purple-900/50 text-purple-300 hover:text-fuchsia-300 hover:bg-purple-800 transition-colors">
+                <i class="fa-solid fa-chevron-right text-xs"></i>
+            </a>
+        </form>
+    </div>
+
+    @* Timetable Grid (8 AM to 8 PM) *@
+    <div class="overflow-x-auto pb-4 mb-8">
+        <div class="min-w-[900px] border border-purple-500/20 rounded-xl bg-purple-950/20 overflow-hidden relative">
+
+            @* Grid Header (Days) *@
+            <div class="flex border-b border-purple-500/20 bg-black/40 sticky top-0 z-20">
+                <div class="w-16 flex-shrink-0 border-r border-purple-500/20"></div>
+
+                @for (int i = 0; i < 7; i++)
+                {
+                    var currentDay = Model.StartOfWeek.AddDays(i);
+                    bool isSelectedDay = currentDay == Model.CurrentViewDate;
+
+                    <div class="flex-1 text-center py-3 border-r border-purple-500/10 last:border-r-0 transition-colors @(isSelectedDay ? "bg-purple-800/30" : "")">
+                        <div class="text-xs uppercase font-bold tracking-wider @(isSelectedDay ? "text-fuchsia-400" : "text-purple-300/70")">
+                            @currentDay.ToString("ddd")
+                        </div>
+                        <div class="text-sm font-medium @(isSelectedDay ? "text-white" : "text-purple-400")">
+                            @currentDay.ToString("dd")
+                        </div>
+                    </div>
+                }
+            </div>
+
+            @* Grid Body (Scaled 2x for taller slots) *@
+            <div class="flex relative" style="height: 1440px;">
+
+                @* Time Axis (Y-Axis) *@
+                <div class="w-16 flex-shrink-0 border-r border-purple-500/20 relative z-10 bg-black/20">
+                    @for (int i = 0; i <= 12; i++)
+                    {
+                        int hour = i + 8;
+                        <div class="absolute w-full text-right pr-2" style="top: @(i * 120 - 8)px;">
+                            <span class="text-[10px] text-purple-400/50 font-medium">
+                                @(hour > 12 ? $"{hour - 12} PM" : (hour == 12 ? "12 PM" : $"{hour} AM"))
+                            </span>
+                        </div>
+                    }
+                </div>
+
+                @* Day Columns Container *@
+                <div class="flex-1 flex relative">
+
+                    @* Absolute Background Grid Lines *@
+                    <div class="absolute inset-0 pointer-events-none z-0">
+                        @for (int i = 0; i <= 12; i++)
+                        {
+                            <div class="absolute w-full border-t border-purple-500/10" style="top: @(i * 120)px;"></div>
+                        }
+                    </div>
+
+                    @* Day Columns *@
+                    @for (int dayOffset = 0; dayOffset < 7; dayOffset++)
+                    {
+                        var currentDay = Model.StartOfWeek.AddDays(dayOffset);
+                        var dailySlots = Model.Slots.Where(s => s.Date == currentDay).ToList();
+                        bool isSelectedDay = currentDay == Model.CurrentViewDate;
+                        bool isRealTodayForCol = currentDay == DateOnly.FromDateTime(DateTime.Today);
+
+                        <div class="flex-1 border-r border-purple-500/10 last:border-r-0 relative z-10 @(isSelectedDay ? "bg-purple-800/10" : "")">
+                            @foreach (var slot in dailySlots)
+                            {
+                                int startMinutes = (slot.StartTime.Hour * 60 + slot.StartTime.Minute) - 480;
+                                int durationMinutes = (slot.EndTime.Hour * 60 + slot.EndTime.Minute) - (slot.StartTime.Hour * 60 + slot.StartTime.Minute);
+
+                                if (startMinutes < 0) startMinutes = 0;
+                                if (startMinutes + durationMinutes > 720) durationMinutes = 720 - startMinutes;
+
+                                bool isOngoing = isRealTodayForCol && slot.StartTime <= currentTime && slot.EndTime > currentTime;
+                                string lecturerName = slot.StaffId.HasValue && Model.StaffNames.ContainsKey(slot.StaffId.Value) ? Model.StaffNames[slot.StaffId.Value] : "TBA";
+
+                                string baseClasses = isOngoing
+                                ? "bg-fuchsia-900/60 border-fuchsia-400 shadow-[0_0_15px_rgba(217,70,239,0.3)] z-20 animate-pulse"
+                                : "bg-violet-900/40 border-violet-500/40 hover:bg-violet-800/60 hover:border-violet-300 z-10";
+
+                                <div class="absolute w-[calc(100%-8px)] left-[4px] rounded-md border p-2.5 flex flex-col overflow-hidden transition-all group backdrop-blur-md @baseClasses"
+                                     style="top: @(startMinutes * 2)px; height: @(durationMinutes * 2)px;"
+                                     title="@lecturerName - @(slot.Venue?.Name) (@(slot.Venue?.Classroom))">
+
+                                    <div class="text-[12px] font-bold text-white truncate drop-shadow-sm leading-tight">
+                                        @(slot.Course?.Code)
+                                    </div>
+                                    <div class="text-[10px] font-medium text-purple-200/90 leading-tight mt-0.5 whitespace-normal line-clamp-2">
+                                        @(slot.Course?.Title)
+                                    </div>
+                                    <div class="text-[10px] text-purple-300/80 truncate mt-1 leading-tight">
+                                        @slot.ClassType
+                                    </div>
+
+                                    @if (durationMinutes >= 50)
+                                    {
+                                        <div class="text-[10px] text-fuchsia-300/90 font-medium truncate mt-1.5">
+                                            <i class="fa-regular fa-clock mr-1"></i>@slot.StartTime.ToString("hh:mm tt") - @slot.EndTime.ToString("hh:mm tt")
+                                        </div>
+                                        <div class="text-[10px] text-purple-300/80 truncate mt-1">
+                                            <i class="fa-solid fa-user-tie mr-1"></i>@lecturerName
+                                        </div>
+                                        <div class="mt-auto flex items-center justify-between text-[11px] text-purple-200">
+                                            <span class="truncate pr-1"><i class="fa-solid fa-location-dot mr-1"></i>@(slot.Venue?.Name)-@(slot.Venue?.Classroom)</span>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* --- Daily Table Below the Grid --- *@
+    <div class="mt-8 border-t border-purple-500/20 pt-8">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-list text-fuchsia-400"></i>
+                Itinerary for @(isViewingRealToday ? "Today" : Model.CurrentViewDate.ToString("dddd, dd MMM yyyy"))
+            </h3>
+        </div>
+
+        @if (!Model.DailyClasses.Any())
+        {
+            <div class="bg-purple-950/20 border border-dashed border-purple-500/30 rounded-xl p-8 text-center text-purple-300/60">
+                <i class="fa-solid fa-mug-hot text-3xl mb-3"></i>
+                <p class="text-lg">No classes scheduled for this day.</p>
+            </div>
+        }
+        else
+        {
+            <div class="overflow-x-auto rounded-xl border border-purple-500/20">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-purple-900/30 border-b border-purple-500/30 text-purple-300 text-sm font-semibold uppercase tracking-wider">
+                        <tr>
+                            <th class="p-4">Time</th>
+                            <th class="p-4">Course</th>
+                            <th class="p-4">Type</th>
+                            <th class="p-4">Venue & Classroom</th>
+                            <th class="p-4">Lecturer</th>
+                            <th class="p-4 text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-purple-500/10 bg-black/20">
+                        @foreach (var cls in Model.DailyClasses)
+                        {
+                            bool isOngoing = isViewingRealToday && cls.StartTime <= currentTime && cls.EndTime > currentTime;
+                            bool isEnd = isViewingRealToday && cls.EndTime <= currentTime;
+                            bool isUpcoming = isViewingRealToday && cls.StartTime > currentTime;
+
+                            string lecturerName = cls.StaffId.HasValue && Model.StaffNames.ContainsKey(cls.StaffId.Value) ? Model.StaffNames[cls.StaffId.Value] : "TBA";
+
+                            <tr class="transition-colors hover:bg-purple-900/20 @(isOngoing ? "bg-fuchsia-900/10" : "")">
+                                <td class="p-4 whitespace-nowrap text-purple-100 font-medium">
+                                    @cls.StartTime.ToString("hh:mm tt") - @cls.EndTime.ToString("hh:mm tt")
+                                </td>
+                                <td class="p-4">
+                                    <div class="font-bold text-white">@(cls.Course?.Code ?? "N/A")</div>
+                                    <div class="text-xs text-purple-300/70 mt-0.5">@(cls.Course?.Title ?? "")</div>
+                                </td>
+                                <td class="p-4 text-purple-200">
+                                    <span class="px-2 py-1 rounded-md text-xs font-medium border border-purple-500/30 bg-purple-900/30">
+                                        @cls.ClassType
+                                    </span>
+                                </td>
+                                <td class="p-4">
+                                    <div class="flex items-center gap-3">
+                                        @* Clickable Photo Logic *@
+                                        @if (cls.Venue?.Photo != null && cls.Venue.Photo.Length > 0)
+                                        {
+                                            string base64 = Convert.ToBase64String(cls.Venue.Photo);
+                                            string imgSrc = $"data:image/jpeg;base64,{base64}";
+                                            <button type="button"
+                                                    data-img-src="@imgSrc"
+                                                    data-venue-name="@(cls.Venue.Name)"
+                                                    onclick="openPhotoModal(this)"
+                                                    class="focus:outline-none transition-transform hover:scale-105 group/photo relative block">
+                                                <img src="@imgSrc" alt="Venue Photo" class="w-12 h-12 rounded-lg object-cover border border-purple-500/30 shadow-md cursor-zoom-in group-hover/photo:border-fuchsia-400/60" />
+                                                <div class="absolute inset-0 bg-black/40 hidden group-hover/photo:flex items-center justify-center rounded-lg backdrop-blur-[1px]">
+                                                    <i class="fa-solid fa-magnifying-glass-plus text-white text-sm"></i>
+                                                </div>
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <div class="w-12 h-12 rounded-lg bg-purple-900/50 flex items-center justify-center border border-purple-500/30 shadow-md">
+                                                <i class="fa-solid fa-image text-purple-400/50"></i>
+                                            </div>
+                                        }
+
+                                        @* Google Maps Link Logic *@
+                                        <div>
+                                            @if (cls.Venue?.Latitude != null && cls.Venue?.Longitude != null)
+                                            {
+                                                <a href="https://maps.google.com/?q=@(cls.Venue.Latitude),@(cls.Venue.Longitude)" target="_blank" class="flex items-center gap-1.5 text-fuchsia-300 hover:text-fuchsia-200 hover:underline hover:decoration-fuchsia-400 font-bold transition-all group">
+                                                    <i class="fa-solid fa-location-arrow group-hover:scale-110 transition-transform"></i>
+                                                    <span>@(cls.Venue?.Name) - @(cls.Venue?.Classroom ?? "N/A")</span>
+                                                </a>
+                                            }
+                                            else if (cls.Venue != null)
+                                            {
+                                                <a href="https://maps.google.com/?q=@(Uri.EscapeDataString(cls.Venue.Name + " " + (cls.Venue.Classroom ?? "")))" target="_blank" class="flex items-center gap-1.5 text-fuchsia-300 hover:text-fuchsia-200 hover:underline hover:decoration-fuchsia-400 font-bold transition-all group">
+                                                    <i class="fa-solid fa-location-dot group-hover:scale-110 transition-transform"></i>
+                                                    <span>@(cls.Venue.Name) - @(cls.Venue.Classroom ?? "N/A")</span>
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-purple-300/70">TBA</span>
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="p-4 text-purple-200">
+                                    @lecturerName
+                                </td>
+                                <td class="p-4 text-center">
+                                    @if (isViewingRealToday)
+                                    {
+                                        if (isEnd)
+                                        {
+                                            <span class="inline-flex items-center justify-center w-24 py-1 rounded-full text-[11px] font-bold bg-purple-900/40 text-purple-400/50 border border-purple-500/20">
+                                                End
+                                            </span>
+                                        }
+                                        else if (isOngoing)
+                                        {
+                                            <span class="inline-flex items-center justify-center w-24 gap-1.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/50 animate-pulse">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                                                Ongoing
+                                            </span>
+                                        }
+                                        else if (isUpcoming)
+                                        {
+                                            <span class="inline-flex items-center justify-center w-24 py-1 rounded-full text-[11px] font-bold bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/50">
+                                                Upcoming
+                                            </span>
+                                        }
+                                    }
+                                    else if (Model.CurrentViewDate < DateOnly.FromDateTime(DateTime.Today))
+                                    {
+                                        <span class="inline-flex items-center justify-center w-24 py-1 rounded-full text-[11px] font-bold bg-purple-900/40 text-purple-400/50 border border-purple-500/20">
+                                            End
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-xs font-medium text-purple-300/70">Scheduled</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+@* --- Modal for Enlarged Photo --- *@
+<div id="photoModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300" onclick="closePhotoModal()">
+    <div class="relative max-w-4xl max-h-[90vh] mx-auto p-4 flex flex-col items-center" onclick="event.stopPropagation()">
+        @* Close Button *@
+        <button type="button" onclick="closePhotoModal()" class="absolute -top-10 right-4 md:-right-10 text-white hover:text-fuchsia-400 hover:scale-110 transition-all bg-purple-900/50 hover:bg-purple-800 rounded-full w-10 h-10 flex items-center justify-center border border-purple-500/30">
+            <i class="fa-solid fa-xmark text-xl"></i>
+        </button>
+
+        @* Image *@
+        <img id="enlargedPhoto" src="" alt="Enlarged Venue" class="max-w-full max-h-[80vh] rounded-xl border border-purple-500/40 shadow-[0_0_30px_rgba(217,70,239,0.2)] object-contain" />
+
+        @* Title below image *@
+        <div class="mt-4 bg-purple-950/80 border border-purple-500/30 px-6 py-2 rounded-full backdrop-blur-md">
+            <h4 id="photoModalTitle" class="text-white font-bold text-lg drop-shadow-md flex items-center gap-2">
+                <i class="fa-solid fa-location-dot text-fuchsia-400"></i>
+                <span></span>
+            </h4>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function openPhotoModal(buttonElement) {
+            const imgSrc = buttonElement.getAttribute('data-img-src');
+            const venueName = buttonElement.getAttribute('data-venue-name');
+
+            const modal = document.getElementById('photoModal');
+            const img = document.getElementById('enlargedPhoto');
+            const titleSpan = document.querySelector('#photoModalTitle span');
+
+            img.src = imgSrc;
+            titleSpan.innerText = venueName;
+
+            // Show modal (remove display:none)
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            // Trigger transition (short delay needed for CSS to catch the display change)
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.classList.add('opacity-100');
+            }, 10);
+
+            // Prevent body scrolling
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePhotoModal() {
+            const modal = document.getElementById('photoModal');
+
+            // Start fade out
+            modal.classList.remove('opacity-100');
+            modal.classList.add('opacity-0');
+
+            // Hide after transition completes
+            setTimeout(() => {
+                modal.classList.remove('flex');
+                modal.classList.add('hidden');
+                document.getElementById('enlargedPhoto').src = '';
+
+                // Restore body scrolling
+                document.body.style.overflow = '';
+            }, 300); // 300ms matches the Tailwind duration-300 utility
+        }
+
+        // Allow escaping with keyboard
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape") {
+                const modal = document.getElementById('photoModal');
+                if (!modal.classList.contains('hidden')) {
+                    closePhotoModal();
+                }
+            }
+        });
+    </script>
+}

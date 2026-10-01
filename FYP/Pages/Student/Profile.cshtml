@@ -1,0 +1,289 @@
+@page
+@model FYP.Pages.Student.ProfileModel
+@{
+    ViewData["Title"] = "My Profile";
+    Layout = "_StudentLayout";
+
+    // --- LOGIC: Direct Map from DB ---
+    // Check if StudyStatus is exactly "Active" (case-insensitive)
+    bool isActive = string.Equals(Model.CurrentUser.StudyStatus, "Active", StringComparison.OrdinalIgnoreCase);
+
+    string statusText = isActive ? "Active" : "Inactive";
+    string statusColor = isActive ? "text-green-400" : "text-red-500";
+}
+
+<div class="animate-fade-in-up relative bg-black/40 backdrop-blur-xl rounded-2xl border border-purple-500/20 p-8 mb-8 overflow-hidden shadow-[0_8px_32px_0_rgba(88,28,135,0.3)]">
+    <div class="absolute -top-24 -right-24 w-64 h-64 rounded-full bg-fuchsia-600/10 blur-[80px] pointer-events-none"></div>
+    <div class="absolute -bottom-24 -left-24 w-64 h-64 rounded-full bg-violet-600/10 blur-[80px] pointer-events-none"></div>
+
+    @if (!ModelState.IsValid)
+    {
+        <div class="mb-4 p-3 bg-red-500/10 border border-red-500/30 text-red-400 rounded-lg text-sm text-center">
+            @Html.ValidationSummary(false)
+        </div>
+    }
+
+    <div class="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-8">
+
+        <div class="relative group">
+            <div class="w-32 h-32 rounded-2xl border-2 border-fuchsia-500/30 p-1 shadow-[0_0_20px_rgba(217,70,239,0.3)] overflow-hidden bg-black/50">
+                @if (!string.IsNullOrEmpty(Model.ProfilePhotoBase64))
+                {
+                    <img src="@Model.ProfilePhotoBase64" alt="Profile" class="w-full h-full object-cover rounded-xl" />
+                }
+                else
+                {
+                    <div class="w-full h-full flex items-center justify-center bg-purple-900/20 text-fuchsia-400 text-4xl">
+                        <i class="fa-solid fa-user-astronaut"></i>
+                    </div>
+                }
+            </div>
+
+            <form method="post" enctype="multipart/form-data" asp-page-handler="UploadPhoto" id="photoUploadForm">
+                <input type="file"
+                       asp-for="UploadedPhoto"
+                       id="hiddenPhotoInput"
+                       class="hidden"
+                       accept=".jpg,.jpeg,.png"
+                       onchange="validateAndSubmitPhoto(this)" />
+
+                <div onclick="document.getElementById('hiddenPhotoInput').click()"
+                     class="absolute -bottom-2 -right-2 w-8 h-8 bg-fuchsia-600 rounded-lg flex items-center justify-center text-white border border-purple-900 shadow-lg cursor-pointer hover:bg-fuchsia-500 transition-colors z-20"
+                     title="Change Profile Photo">
+                    <i class="fa-solid fa-camera text-xs"></i>
+                </div>
+            </form>
+        </div>
+
+        <div class="text-center md:text-left flex-1">
+            <h2 class="text-3xl font-bold text-white tracking-tight mb-2">
+                @Model.CurrentUser.FullName
+            </h2>
+            <div class="flex flex-wrap justify-center md:justify-start gap-3 mb-4">
+                <span class="px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 text-sm font-medium">
+                    <i class="fa-solid fa-id-badge mr-2"></i> @Model.CurrentUser.UserId
+                </span>
+
+                <span class="px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-300 text-sm font-medium">
+                    <i class="fa-solid fa-user-tag mr-2"></i> @(Model.CurrentUser.Role?.RoleName ?? "Student")
+                </span>
+
+                <span class="px-3 py-1 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/30 text-fuchsia-300 text-sm font-medium">
+                    <i class="fa-solid fa-graduation-cap mr-2"></i> @(Model.CurrentUser.Programme?.Name ?? "Programme Not Set")
+                </span>
+            </div>
+
+            <p class="text-purple-300/60 max-w-2xl text-sm">
+                Student status is currently <span class="@statusColor font-bold uppercase tracking-wider">@statusText</span>.
+            </p>
+        </div>
+
+        <div class="flex flex-col gap-3 w-full md:w-auto">
+            <a href="/Student/UpdateProfile" class="flex items-center justify-center px-5 py-2.5 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white rounded-xl shadow-[0_0_15px_rgba(217,70,239,0.4)] hover:shadow-[0_0_25px_rgba(217,70,239,0.6)] hover:scale-105 transition-all font-semibold text-sm">
+                <i class="fa-solid fa-user-pen mr-2"></i> Update Profile
+            </a>
+
+            <a href="/Student/UpdateBank" class="flex items-center justify-center px-5 py-2.5 bg-purple-900/50 border border-purple-500/30 text-purple-200 rounded-xl hover:bg-purple-800/50 hover:text-white transition-all font-semibold text-sm">
+                <i class="fa-solid fa-building-columns mr-2"></i> Update Bank Details
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+    <div class="lg:col-span-2 space-y-8 animate-fade-in-up delay-100">
+        <div class="bg-purple-950/20 backdrop-blur-md rounded-2xl border border-purple-500/20 p-6 relative overflow-hidden group hover:border-fuchsia-500/30 transition-all duration-300">
+
+            <div class="flex items-center gap-3 mb-6 pb-4 border-b border-purple-500/20">
+                <i class="fa-regular fa-address-card text-xl text-fuchsia-400"></i>
+                <h3 class="text-xl font-bold text-white">Personal Details</h3>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8">
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-purple-400/70 font-semibold mb-1">IC / Passport</label>
+                    <p class="text-purple-100 font-medium bg-black/20 p-3 rounded-lg border border-purple-500/10">@Model.CurrentUser.IcNumber</p>
+                </div>
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-purple-400/70 font-semibold mb-1">Email Address</label>
+                    <p class="text-purple-100 font-medium bg-black/20 p-3 rounded-lg border border-purple-500/10">@Model.CurrentUser.Email</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-purple-400/70 font-semibold mb-1">Intake Year</label>
+                    <p class="text-purple-100 font-medium bg-black/20 p-3 rounded-lg border border-purple-500/10">
+                        @Model.CurrentUser.IntakeYear
+                    </p>
+                </div>
+
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-purple-400/70 font-semibold mb-1">Session Joined</label>
+                    <p class="text-purple-100 font-medium bg-black/20 p-3 rounded-lg border border-purple-500/10">
+                        @(Model.CurrentUser.SessionJoined.HasValue? Model.CurrentUser.SessionJoined.ToString() : "-")
+                    </p>
+                </div>
+
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-purple-400/70 font-semibold mb-1">Year Level</label>
+                    <p class="text-purple-100 font-medium bg-black/20 p-3 rounded-lg border border-purple-500/10 text-fuchsia-400 font-bold">
+                        @if (Model.CurrentUser.YearLevel.HasValue)
+                        {
+                            <span>Y@(Model.CurrentUser.YearLevel)</span>
+                        }
+                        else
+                        {
+                            <span class="text-gray-500 font-normal">-</span>
+                        }
+                    </p>
+                </div>
+
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-purple-400/70 font-semibold mb-1">Current Semester</label>
+                    <p class="text-purple-100 font-medium bg-black/20 p-3 rounded-lg border border-purple-500/10">
+                        Semester @Model.CurrentUser.Semester
+                    </p>
+                </div>
+
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-purple-400/70 font-semibold mb-1">Contact Number</label>
+                    <p class="text-purple-100 font-medium bg-black/20 p-3 rounded-lg border border-purple-500/10">@(Model.CurrentUser.ContactNo ?? "Not Provided")</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-purple-400/70 font-semibold mb-1">Emergency Contact</label>
+                    <p class="text-purple-100 font-medium bg-black/20 p-3 rounded-lg border border-purple-500/10">@(Model.CurrentUser.EmergencyContact ?? "Not Provided")</p>
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-xs uppercase tracking-wider text-purple-400/70 font-semibold mb-1">Permanent Address</label>
+                    <p class="text-purple-100 font-medium bg-black/20 p-3 rounded-lg border border-purple-500/10">@(Model.CurrentUser.Address ?? "Not Provided")</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-purple-400/70 font-semibold mb-1">Bank Name</label>
+                    <p class="text-purple-100 font-medium bg-black/20 p-3 rounded-lg border border-purple-500/10">@(Model.CurrentUser.Bank?.BankName ?? "-")</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-purple-400/70 font-semibold mb-1">Bank Account Number</label>
+                    <div class="text-purple-100 font-mono text-xs break-all bg-black/20 p-3 rounded-lg border border-purple-500/10 flex items-start gap-2">
+                        @if (!string.IsNullOrEmpty(Model.CurrentUser.BankAccNo))
+                        {
+                            <i class="fa-solid fa-lock text-fuchsia-500 mt-0.5"></i>
+                            <span>@Model.CurrentUser.BankAccNo</span>
+                        }
+                        else
+                        {
+                            <span>-</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="space-y-8 animate-fade-in-up delay-200">
+
+        <div class="bg-purple-950/20 backdrop-blur-md rounded-2xl border border-purple-500/20 p-6 relative overflow-hidden group hover:border-violet-500/30 transition-all duration-300">
+            <div class="flex items-center gap-3 mb-6 pb-4 border-b border-purple-500/20">
+                <i class="fa-solid fa-university text-xl text-violet-400"></i>
+                <h3 class="text-xl font-bold text-white">Academic Data</h3>
+            </div>
+
+            <div class="space-y-4">
+                <div class="flex justify-between items-center p-3 bg-violet-500/5 rounded-lg border border-violet-500/10">
+                    <span class="text-purple-300 text-sm">Programme</span>
+                    <span class="text-white font-semibold text-right">@(Model.CurrentUser.Programme?.Name ?? "N/A")</span>
+                </div>
+
+                <div class="flex justify-between items-center p-3 bg-violet-500/5 rounded-lg border border-violet-500/10">
+                    <span class="text-purple-300 text-sm">Qualification Level</span>
+                    <span class="text-white font-semibold text-right">@(Model.CurrentUser.Programme?.Level ?? "N/A")</span>
+                </div>
+
+                <div class="flex justify-between items-center p-3 bg-violet-500/5 rounded-lg border border-violet-500/10">
+                    <span class="text-purple-300 text-sm">Department</span>
+                    <span class="text-white font-semibold text-right">@(Model.CurrentUser.Department?.DepartmentName ?? "General")</span>
+                </div>
+
+                <div class="flex justify-between items-center p-3 bg-violet-500/5 rounded-lg border border-violet-500/10">
+                    <span class="text-purple-300 text-sm">Tutorial Group</span>
+                    <span class="text-white font-semibold">@(Model.CurrentUser.TutorialGroup ?? "Unassigned")</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-purple-950/20 backdrop-blur-md rounded-2xl border border-purple-500/20 p-6 relative overflow-hidden group hover:border-fuchsia-500/30 transition-all duration-300">
+            <div class="flex items-center gap-3 mb-6 pb-4 border-b border-purple-500/20">
+                <i class="fa-solid fa-chalkboard-user text-xl text-fuchsia-400"></i>
+                <h3 class="text-xl font-bold text-white">Academic Advisor</h3>
+            </div>
+
+            @if (Model.CurrentUser.Advisory?.Staff != null)
+            {
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="w-12 h-12 rounded-full bg-purple-700 flex items-center justify-center text-white overflow-hidden">
+                        @if (!string.IsNullOrEmpty(Model.AdvisorPhotoBase64))
+                        {
+                            <img src="@Model.AdvisorPhotoBase64" class="w-full h-full object-cover" />
+                        }
+                        else
+                        {
+                            <span class="font-bold">@Model.CurrentUser.Advisory.Staff.FullName.Substring(0, 1)</span>
+                        }
+                    </div>
+                    <div>
+                        <p class="text-white font-bold">@Model.CurrentUser.Advisory.Staff.FullName</p>
+                        <p class="text-xs text-purple-400">@Model.CurrentUser.Advisory.Staff.Email</p>
+                    </div>
+                </div>
+                <div class="space-y-2 text-sm">
+                    <div class="flex gap-2">
+                        <i class="fa-solid fa-location-dot text-purple-500 mt-1"></i>
+                        <span class="text-purple-200">@(Model.CurrentUser.Advisory.OfficeLocation ?? "Office info unavailable")</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <i class="fa-regular fa-clock text-purple-500 mt-1"></i>
+                        <span class="text-purple-200">@(Model.CurrentUser.Advisory.ConsultationHours ?? "No hours listed")</span>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-6 text-purple-400/50">
+                    <i class="fa-solid fa-user-slash text-3xl mb-2"></i>
+                    <p>No advisor assigned.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function validateAndSubmitPhoto(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            // 1. Client-side Size Validation (2MB limit)
+            const maxSize = 2 * 1024 * 1024; // 2MB in bytes
+            if (file.size > maxSize) {
+                alert("File is too large! Please upload an image smaller than 2MB.");
+                input.value = ""; // Clear the input so validation triggers again
+                return;
+            }
+
+            // 2. Client-side Type Validation
+            const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+            if (!validTypes.includes(file.type)) {
+                alert("Invalid file type. Please upload a JPG or PNG image.");
+                input.value = "";
+                return;
+            }
+
+            // 3. Auto-submit if valid
+            document.getElementById('photoUploadForm').submit();
+        }
+    </script>
+}

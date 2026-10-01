@@ -1,0 +1,152 @@
+@page
+@model FYP.Pages.Student.HomepageModel
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "_StudentLayout";
+}
+
+<div class="animate-fade-in-up relative bg-black/40 backdrop-blur-xl rounded-2xl border border-purple-500/20 p-8 mb-8 overflow-hidden shadow-[0_8px_32px_0_rgba(88,28,135,0.3)] group hover:border-fuchsia-500/40 transition-all duration-500">
+    <div class="absolute -top-24 -right-24 w-64 h-64 rounded-full bg-fuchsia-600/20 blur-[80px] pointer-events-none group-hover:bg-fuchsia-500/30 transition-all duration-700"></div>
+    <div class="absolute -bottom-24 -left-24 w-64 h-64 rounded-full bg-violet-600/20 blur-[80px] pointer-events-none group-hover:bg-violet-500/30 transition-all duration-700"></div>
+
+    <div class="relative z-10 flex flex-col md:flex-row justify-between md:items-center gap-4">
+        <div>
+            <h2 class="text-4xl font-extrabold text-white mb-3 tracking-tight drop-shadow-md">
+                Welcome Back, <span class="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-purple-400 to-violet-400 drop-shadow-[0_0_10px_rgba(217,70,239,0.5)]">@(Model.CurrentUser?.FullName ?? User.Identity?.Name ?? "Student")</span>
+            </h2>
+            <p class="text-purple-300/80 max-w-2xl text-lg font-light">
+                Academic systems <span class="text-fuchsia-400 font-medium">online</span>.
+                Programme: <strong class="text-white drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]">@(Model.CurrentUser?.Programme?.Code ?? "N/A")</strong>.
+            </p>
+        </div>
+        <div class="text-left md:text-right">
+            <div class="inline-block bg-purple-950/50 border border-purple-500/30 rounded-xl px-4 py-2 text-center shadow-inner">
+                <p class="text-xs text-purple-300/70 uppercase tracking-widest mb-1">Today's Date</p>
+                <p class="text-white font-mono font-bold tracking-wide">@DateTime.Now.ToString("dd MMM yyyy")</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    
+    <a href="/Student/OverallResult" class="animate-fade-in-up delay-100 bg-purple-950/20 backdrop-blur-md rounded-2xl p-6 border border-purple-500/20 hover:border-fuchsia-400/60 hover:-translate-y-1 hover:shadow-[0_0_25px_rgba(217,70,239,0.2)] hover:bg-purple-900/30 transition-all duration-300 flex items-center gap-5 group relative overflow-hidden block">
+        <div class="absolute top-0 left-0 w-1 h-full bg-fuchsia-500 shadow-[0_0_10px_#d946ef] transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></div>
+        <div class="w-14 h-14 rounded-xl bg-fuchsia-500/10 text-fuchsia-400 flex items-center justify-center text-2xl border border-fuchsia-500/30 group-hover:scale-110 group-hover:bg-fuchsia-500/20 group-hover:shadow-[0_0_15px_rgba(217,70,239,0.4)] transition-all">
+            <i class="fa-solid fa-graduation-cap"></i>
+        </div>
+        <div>
+            <p class="text-sm text-purple-300/70 font-medium tracking-wide uppercase group-hover:text-fuchsia-300 transition-colors">Current CGPA</p>
+            <h3 class="text-3xl font-bold text-white drop-shadow-sm">@(Model.CurrentCgpa > 0 ? Model.CurrentCgpa.ToString("0.00") : "--")</h3>
+        </div>
+    </a>
+
+    <a href="/Student/ProgrammeStructure" class="animate-fade-in-up delay-200 bg-purple-950/20 backdrop-blur-md rounded-2xl p-6 border border-purple-500/20 hover:border-purple-400/60 hover:-translate-y-1 hover:shadow-[0_0_25px_rgba(168,85,247,0.2)] hover:bg-purple-900/30 transition-all duration-300 flex items-center gap-5 group relative overflow-hidden block">
+        <div class="absolute top-0 left-0 w-1 h-full bg-purple-500 shadow-[0_0_10px_#a855f7] transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></div>
+        <div class="w-14 h-14 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center text-2xl border border-purple-500/30 group-hover:scale-110 group-hover:bg-purple-500/20 group-hover:shadow-[0_0_15px_rgba(168,85,247,0.4)] transition-all">
+            <i class="fa-solid fa-check-to-slot"></i>
+        </div>
+        <div>
+            <p class="text-sm text-purple-300/70 font-medium tracking-wide uppercase group-hover:text-purple-300 transition-colors">Credits Earned</p>
+            <h3 class="text-3xl font-bold text-white drop-shadow-sm">@Model.TotalCreditsEarned</h3>
+        </div>
+    </a>
+
+    <a href="/Student/CurrentBilling" class="animate-fade-in-up delay-300 bg-purple-950/20 backdrop-blur-md rounded-2xl p-6 border border-purple-500/20 hover:border-violet-400/60 hover:-translate-y-1 hover:shadow-[0_0_25px_rgba(139,92,246,0.2)] hover:bg-purple-900/30 transition-all duration-300 flex items-center gap-5 group relative overflow-hidden block">
+        <div class="absolute top-0 left-0 w-1 h-full bg-violet-500 shadow-[0_0_10px_#8b5cf6] transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></div>
+        <div class="w-14 h-14 rounded-xl bg-violet-500/10 text-violet-400 flex items-center justify-center text-2xl border border-violet-500/30 group-hover:scale-110 group-hover:bg-violet-500/20 group-hover:shadow-[0_0_15px_rgba(139,92,246,0.4)] transition-all">
+            <i class="fa-solid fa-file-invoice-dollar"></i>
+        </div>
+        <div>
+            <p class="text-sm text-purple-300/70 font-medium tracking-wide uppercase group-hover:text-violet-300 transition-colors">Outstanding Fees</p>
+            <h3 class="text-3xl font-bold @(Model.OutstandingBalance > 0 ? "text-rose-400" : "text-white") drop-shadow-sm">
+                RM @Model.OutstandingBalance.ToString("0.00")
+            </h3>
+        </div>
+    </a>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    
+    <div class="animate-fade-in-up delay-300 bg-black/30 backdrop-blur-xl rounded-2xl border border-purple-500/20 p-6 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] flex flex-col hover:border-purple-500/40 hover:shadow-[0_0_20px_rgba(168,85,247,0.1)] transition-all duration-300 relative overflow-hidden group">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-purple-600/5 rounded-full blur-2xl group-hover:bg-purple-500/10 transition-colors"></div>
+
+        <div class="flex justify-between items-center mb-6 relative z-10">
+            <h3 class="font-bold text-lg text-white flex items-center">
+                <i class="fa-regular fa-calendar-check text-fuchsia-400 mr-3 drop-shadow-[0_0_8px_rgba(217,70,239,0.8)]"></i> Upcoming Exams
+            </h3>
+            <a href="/Student/ExamTimetable" class="text-sm text-fuchsia-400 hover:text-fuchsia-300 font-medium hover:underline decoration-fuchsia-400/50 underline-offset-4 transition-all">View Timetable</a>
+        </div>
+
+        <div class="flex-1 flex flex-col relative z-10">
+            @if (Model.UpcomingExams.Any())
+            {
+                <div class="space-y-4">
+                    @foreach (var exam in Model.UpcomingExams)
+                    {
+                        <div class="bg-purple-900/20 border border-purple-500/20 rounded-xl p-4 hover:bg-purple-900/40 transition-colors border-l-4 border-l-fuchsia-500">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="bg-fuchsia-500/20 text-fuchsia-300 text-xs font-bold px-2 py-1 rounded border border-fuchsia-500/30">@exam.CourseCode</span>
+                                <span class="text-purple-200 text-xs font-mono font-bold tracking-wide">@exam.ExamDate.ToString("dd MMM yyyy")</span>
+                            </div>
+                            <h4 class="text-white font-medium mb-3 truncate">@exam.CourseTitle</h4>
+                            <div class="flex justify-between text-sm text-purple-300/80">
+                                <span><i class="fa-regular fa-clock mr-1 text-fuchsia-400/70"></i> @exam.StartTime.ToString("hh:mm tt")</span>
+                                <span class="truncate ml-4"><i class="fa-solid fa-location-dot mr-1 text-fuchsia-400/70"></i> @exam.Venue</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="flex flex-col items-center justify-center text-center py-10 opacity-70 hover:opacity-100 transition-opacity duration-300">
+                    <div class="w-20 h-20 rounded-full border border-dashed border-purple-500/30 flex items-center justify-center mb-4 group-hover:border-fuchsia-500/50 group-hover:rotate-180 transition-all duration-700">
+                        <i class="fa-regular fa-calendar-xmark text-3xl text-purple-400/50 group-hover:text-fuchsia-400 transition-colors drop-shadow-[0_0_5px_rgba(217,70,239,0.5)]"></i>
+                    </div>
+                    <p class="text-purple-200 font-medium text-lg">No Upcoming Exams</p>
+                    <p class="text-sm text-purple-400/60 mt-1">You are clear for the near future.</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="animate-fade-in-up delay-300 bg-black/30 backdrop-blur-xl rounded-2xl border border-purple-500/20 p-6 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] flex flex-col hover:border-purple-500/40 hover:shadow-[0_0_20px_rgba(168,85,247,0.1)] transition-all duration-300 relative overflow-hidden group">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-violet-600/5 rounded-full blur-2xl group-hover:bg-violet-500/10 transition-colors"></div>
+
+        <div class="flex justify-between items-center mb-6 relative z-10">
+            <h3 class="font-bold text-lg text-white flex items-center">
+                <i class="fa-solid fa-satellite-dish text-violet-400 mr-3 drop-shadow-[0_0_8px_rgba(139,92,246,0.8)]"></i> Latest Transmissions
+            </h3>
+            <a href="/Student/Announcement" class="text-sm text-violet-400 hover:text-violet-300 font-medium hover:underline decoration-violet-400/50 underline-offset-4 transition-all">View Archive</a>
+        </div>
+
+        <div class="flex-1 flex flex-col relative z-10">
+            @if (Model.RecentAnnouncements.Any())
+            {
+                <div class="space-y-4">
+                    @foreach (var msg in Model.RecentAnnouncements)
+                    {
+                        <div class="bg-purple-900/20 border border-purple-500/20 rounded-xl p-4 hover:bg-purple-900/40 transition-colors border-l-4 border-l-violet-500">
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="text-white font-medium line-clamp-1 pr-4">@msg.Title</h4>
+                                <span class="text-purple-300/60 text-xs font-mono whitespace-nowrap bg-purple-950/50 px-2 py-1 rounded">@msg.PublishDate.ToString("dd MMM")</span>
+                            </div>
+                            <p class="text-sm text-purple-300/80 line-clamp-2">@msg.Description</p>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="flex flex-col items-center justify-center text-center py-10 opacity-70 hover:opacity-100 transition-opacity duration-300">
+                    <div class="w-20 h-20 rounded-full border border-dashed border-purple-500/30 flex items-center justify-center mb-4 group-hover:border-violet-500/50 group-hover:scale-110 transition-all duration-500">
+                        <i class="fa-solid fa-power-off text-3xl text-purple-400/50 group-hover:text-violet-400 transition-colors drop-shadow-[0_0_5px_rgba(139,92,246,0.5)]"></i>
+                    </div>
+                    <p class="text-purple-200 font-medium text-lg">Silence on Comms</p>
+                    <p class="text-sm text-purple-400/60 mt-1">No incoming announcements at this time.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>

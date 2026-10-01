@@ -1,0 +1,131 @@
+@page
+@model FYP.Pages.Student.AnnouncementModel
+@{
+    ViewData["Title"] = "Announcements";
+    Layout = "_StudentLayout";
+}
+
+<div class="max-w-6xl mx-auto">
+
+    <div class="mb-8 animate-fade-in-up flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+            <h2 class="text-3xl font-bold text-white mb-2 flex items-center gap-3">
+                <span class="w-10 h-10 rounded-lg bg-fuchsia-600/20 flex items-center justify-center border border-fuchsia-500/30 shadow-[0_0_15px_rgba(217,70,239,0.3)]">
+                    <i class="fa-solid fa-bullhorn text-fuchsia-400 text-lg"></i>
+                </span>
+                <span>Communique <span class="text-purple-400/50">Logs</span></span>
+            </h2>
+            <p class="text-purple-300/70 ml-14">Stay updated with the latest university transmissions.</p>
+        </div>
+    </div>
+
+    <div class="mb-8 animate-fade-in-up delay-100 bg-black/40 backdrop-blur-xl rounded-2xl border border-purple-500/20 p-4 shadow-[0_8px_32px_0_rgba(88,28,135,0.2)]">
+        <form method="get" class="flex flex-col md:flex-row gap-4">
+
+            <div class="flex-1 relative group">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fa-solid fa-magnifying-glass text-purple-400 group-focus-within:text-fuchsia-400 transition-colors"></i>
+                </div>
+                <input type="text" name="SearchTerm" value="@Model.SearchTerm" placeholder="Search announcement keywords..."
+                       class="block w-full pl-10 pr-3 py-3 bg-purple-900/20 border border-purple-500/30 rounded-xl text-purple-100 placeholder-purple-400/50 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 transition-all shadow-inner" />
+            </div>
+
+            <div class="relative w-full md:w-48">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fa-regular fa-calendar text-purple-400"></i>
+                </div>
+                <select name="FilterType" onchange="this.form.submit()"
+                        class="block w-full pl-10 pr-8 py-3 bg-purple-900/20 border border-purple-500/30 rounded-xl text-purple-100 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 appearance-none cursor-pointer transition-all hover:bg-purple-900/30">
+                    <!option value="" @(string.IsNullOrEmpty(Model.FilterType) ? "selected" : "")>All Time</!option>
+                    <!option value="week" @(Model.FilterType == "week" ? "selected" : "")>This Week</!option>
+                    <!option value="month" @(Model.FilterType == "month" ? "selected" : "")>This Month</!option>
+                </select>
+                <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-purple-400">
+                    <i class="fa-solid fa-chevron-down text-xs"></i>
+                </div>
+            </div>
+
+            <button type="submit" class="px-6 py-3 bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-semibold rounded-xl transition-all shadow-[0_0_15px_rgba(217,70,239,0.4)] hover:shadow-[0_0_25px_rgba(217,70,239,0.6)] flex items-center gap-2 justify-center">
+                <i class="fa-solid fa-filter"></i> Filter
+            </button>
+
+            @if (!string.IsNullOrEmpty(Model.SearchTerm) || !string.IsNullOrEmpty(Model.FilterType))
+            {
+                <a href="/Student/Announcement" class="px-4 py-3 border border-red-500/30 text-red-400 hover:bg-red-500/10 hover:text-red-300 rounded-xl transition-all flex items-center justify-center" title="Clear Filters">
+                    <i class="fa-solid fa-xmark"></i>
+                </a>
+            }
+        </form>
+    </div>
+
+    @if (Model.AnnouncementList.Any())
+    {
+        <div class="grid gap-4 animate-fade-in-up delay-200">
+            @foreach (var item in Model.AnnouncementList)
+            {
+                <div class="bg-black/40 backdrop-blur-md rounded-xl border border-purple-500/20 p-6 hover:border-fuchsia-500/40 hover:bg-purple-900/10 transition-all duration-300 group shadow-[0_4px_20px_rgba(0,0,0,0.2)]">
+                    <div class="flex flex-col md:flex-row gap-6">
+                        <div class="flex-shrink-0 flex flex-row md:flex-col items-center justify-center w-full md:w-20 h-12 md:h-auto bg-purple-950/50 rounded-lg border border-purple-500/30 group-hover:border-fuchsia-500/50 transition-colors gap-2 md:gap-0">
+                            <span class="text-xl font-bold text-white">@item.PublishDate.Day</span>
+                            <span class="text-xs text-fuchsia-300 uppercase font-semibold">@item.PublishDate.ToString("MMM")</span>
+                        </div>
+
+                        <div class="flex-1">
+                            <div class="flex flex-wrap items-center gap-3 mb-2">
+                                <span class="px-2.5 py-1 rounded text-xs font-bold bg-violet-500/10 text-violet-300 border border-violet-500/20 shadow-[0_0_10px_rgba(139,92,246,0.1)]">
+                                    @item.Category
+                                </span>
+                                <span class="text-xs text-purple-400/60 flex items-center gap-1">
+                                    <i class="fa-regular fa-clock"></i> @item.PublishDate.ToString("h:mm tt")
+                                </span>
+                            </div>
+
+                            <h3 class="text-xl font-bold text-white mb-2 group-hover:text-fuchsia-300 transition-colors drop-shadow-sm">
+                                @item.Title
+                            </h3>
+
+                            <p class="text-purple-200/80 leading-relaxed whitespace-pre-wrap">@item.Description</p>
+
+                            @if (!string.IsNullOrEmpty(item.FilePath))
+                            {
+                                <div class="mt-4 pt-2">
+                                    <a href="@item.FilePath" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 bg-purple-900/30 hover:bg-purple-800/50 text-fuchsia-300 text-sm font-semibold rounded-lg border border-purple-500/30 transition-all shadow-sm hover:shadow-md">
+                                        <i class="fa-solid fa-paperclip"></i> View Attached File
+                                    </a>
+                                </div>
+                            }
+
+                            <div class="mt-4 pt-4 border-t border-purple-500/10 flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded-full bg-purple-500/20 flex items-center justify-center text-xs text-purple-300">
+                                        <i class="fa-solid fa-user-shield"></i>
+                                    </div>
+                                    <span class="text-xs text-purple-400/50">Posted by Administration</span>
+                                </div>
+                                <span class="text-xs text-purple-500/40 italic">ID: #@item.Id</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="flex flex-col items-center justify-center py-20 text-center animate-fade-in-up delay-200">
+            <div class="w-24 h-24 rounded-full bg-purple-900/20 flex items-center justify-center border border-purple-500/20 mb-6 shadow-[0_0_30px_rgba(168,85,247,0.1)]">
+                <i class="fa-solid fa-satellite-dish text-4xl text-purple-500/40"></i>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">No Transmissions Found</h3>
+            <p class="text-purple-300/60 max-w-sm">
+                We couldn't find any announcements matching
+                <span class="text-fuchsia-400">"@Model.SearchTerm"</span>
+                @if (!string.IsNullOrEmpty(Model.FilterType))
+                {
+                    <span> in <span class="text-violet-400">@Model.FilterType</span></span>
+                }
+            </p>
+            <a href="/Student/Announcement" class="mt-6 text-sm text-fuchsia-400 hover:text-fuchsia-300 hover:underline">Clear all filters</a>
+        </div>
+    }
+</div>

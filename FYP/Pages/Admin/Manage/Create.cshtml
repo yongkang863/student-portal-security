@@ -1,0 +1,204 @@
+@page
+@model FYP.Pages.Admin.Manage.CreateModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Create Data Record";
+}
+
+<div class="max-w-4xl mx-auto space-y-6">
+
+    <div>
+        <h1 class="text-2xl font-bold text-slate-800 tracking-tight">Create Data Records</h1>
+        <p class="text-sm text-slate-500 mt-1">Add new Departments, Programmes, Courses, and Venues to the system.</p>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="p-4 bg-green-50 text-green-700 rounded-xl border border-green-200 flex items-center">
+            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            @Model.SuccessMessage
+        </div>
+    }
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="p-4 bg-red-50 text-red-700 rounded-xl border border-red-200 flex items-center">
+            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            @Model.ErrorMessage
+        </div>
+    }
+
+    <div class="flex space-x-2 bg-slate-200/50 p-1 rounded-xl">
+        <button onclick="switchTab('dept')" id="tab-dept" class="tab-btn flex-1 py-2.5 text-sm font-bold rounded-lg bg-white text-blue-600 shadow-sm transition-all">Department</button>
+        <button onclick="switchTab('prog')" id="tab-prog" class="tab-btn flex-1 py-2.5 text-sm font-bold rounded-lg text-slate-500 hover:text-slate-700 transition-all">Programme</button>
+        <button onclick="switchTab('course')" id="tab-course" class="tab-btn flex-1 py-2.5 text-sm font-bold rounded-lg text-slate-500 hover:text-slate-700 transition-all">Course</button>
+        <button onclick="switchTab('venue')" id="tab-venue" class="tab-btn flex-1 py-2.5 text-sm font-bold rounded-lg text-slate-500 hover:text-slate-700 transition-all">Venue</button>
+    </div>
+
+    <div id="content-dept" class="tab-content bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+        <h3 class="text-lg font-bold text-slate-800 mb-6">Add New Department</h3>
+        <form method="post" asp-page-handler="Department" class="space-y-5">
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Department Name</label>
+                <input type="text" asp-for="NewDepartment.DepartmentName" required placeholder="e.g. Faculty of Computing" oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none" />
+            </div>
+            <button type="submit" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-900/20 transition-all">Create Department</button>
+        </form>
+    </div>
+
+    <div id="content-prog" class="tab-content hidden bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+        <h3 class="text-lg font-bold text-slate-800 mb-6">Add New Programme</h3>
+        <form method="post" asp-page-handler="Programme" class="space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Programme Code</label>
+                    <input type="text" asp-for="NewProgramme.Code" required maxlength="4" placeholder="e.g. RSW" oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '').toUpperCase().substring(0,4)" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none uppercase" />
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Study Level</label>
+                    <select asp-for="NewProgramme.Level" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none">
+                        <option value="Diploma">Diploma</option>
+                        <option value="Degree">Degree</option>
+                        <option value="Master">Master</option>
+                    </select>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Programme Name</label>
+                    <input type="text" asp-for="NewProgramme.Name" required placeholder="e.g. Software Engineering" oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none" />
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Linked Department</label>
+                    <select asp-for="NewProgramme.DepartmentId" asp-items="Model.DepartmentOptions" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none">
+                        <option value="">-- Select Department --</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Years to Complete</label>
+                    <input type="number" asp-for="NewProgramme.YearToComplete" required min="1" max="3" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none" />
+                </div>
+            </div>
+            <button type="submit" class="mt-4 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-900/20 transition-all">Create Programme</button>
+        </form>
+    </div>
+
+    <div id="content-course" class="tab-content hidden bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+        <h3 class="text-lg font-bold text-slate-800 mb-6">Add New Course</h3>
+        <form method="post" asp-page-handler="Course" class="space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Course Code</label>
+                    <input type="text" asp-for="NewCourse.Code" required placeholder="e.g. BACS2063" oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '')" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none uppercase" />
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Credit Hours</label>
+                    <input type="number" asp-for="NewCourse.CreditHours" required min="1" max="4" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none" />
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Course Title</label>
+                    <input type="text" asp-for="NewCourse.Title" required placeholder="e.g. Data Structures and Algorithms" oninput="this.value = this.value.replace(/[^a-zA-Z0-9\s]/g, '')" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none" />
+                </div>
+            </div>
+            <button type="submit" class="mt-4 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-900/20 transition-all">Create Course</button>
+        </form>
+    </div>
+
+    <div id="content-venue" class="tab-content hidden bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+        <h3 class="text-lg font-bold text-slate-800 mb-6">Add New Venue</h3>
+        <form method="post" asp-page-handler="Venue" enctype="multipart/form-data" class="space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Venue Name</label>
+                    <input type="text" asp-for="NewVenue.Name" required placeholder="e.g. Block A" oninput="this.value = this.value.replace(/[^a-zA-Z0-9\s]/g, '')" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none" />
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Classroom / Room Number</label>
+                    <input type="text" asp-for="NewVenue.Classroom" maxlength="4" placeholder="e.g. A201" oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '').substring(0,4)" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none uppercase" />
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Location Coordinates</label>
+                    <p class="text-xs text-slate-500 mb-3">Click on the map to automatically pin the Latitude and Longitude, or type them manually.</p>
+
+                    <div id="map" class="w-full h-64 bg-slate-200 rounded-xl mb-3 border border-slate-300 z-0"></div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="number" id="latInput" asp-for="NewVenue.Latitude" step="0.000001" placeholder="Latitude" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none" />
+                        <input type="number" id="lngInput" asp-for="NewVenue.Longitude" step="0.000001" placeholder="Longitude" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none" />
+                    </div>
+                </div>
+
+                <div class="md:col-span-2 pt-2 border-t border-slate-100">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Venue Photo</label>
+                    <input type="file" name="VenuePhoto" accept="image/*" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+                </div>
+            </div>
+            <button type="submit" class="mt-4 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-900/20 transition-all">Create Venue</button>
+        </form>
+    </div>
+
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <script>
+        let map;
+        let marker;
+
+        // Initialize OpenStreetMap via Leaflet
+        function initMap() {
+            // Default center set to Shah Alam, Malaysia
+            map = L.map('map').setView([3.0738, 101.5183], 13);
+
+            // Add the free OpenStreetMap tile layer
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            const latInput = document.getElementById("latInput");
+            const lngInput = document.getElementById("lngInput");
+
+            // Listen for clicks on the map
+            map.on('click', function (e) {
+                const lat = e.latlng.lat.toFixed(6);
+                const lng = e.latlng.lng.toFixed(6);
+
+                // Update inputs
+                latInput.value = lat;
+                lngInput.value = lng;
+
+                // Place or move marker
+                if (marker) {
+                    marker.setLatLng(e.latlng);
+                } else {
+                    marker = L.marker(e.latlng).addTo(map);
+                }
+            });
+        }
+
+        // Run map initialization immediately
+        initMap();
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-white', 'text-blue-600', 'shadow-sm');
+                btn.classList.add('text-slate-500');
+            });
+
+            document.getElementById('content-' + tabName).classList.remove('hidden');
+            const activeBtn = document.getElementById('tab-' + tabName);
+            activeBtn.classList.remove('text-slate-500');
+            activeBtn.classList.add('bg-white', 'text-blue-600', 'shadow-sm');
+
+            // CRITICAL FIX: Leaflet maps sometimes don't render properly if initialized inside a hidden div.
+            // This command tells the map to recalculate its size once the Venue tab becomes visible.
+            if (tabName === 'venue' && map) {
+                setTimeout(function() {
+                    map.invalidateSize();
+                }, 100);
+            }
+        }
+    </script>
+}

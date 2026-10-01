@@ -1,0 +1,315 @@
+@page
+@model FYP.Pages.Admin.Bill.GenerateBillModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Generate New Bill";
+}
+
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+
+        <div class="mb-8 border-b border-slate-100 pb-4 flex justify-between items-center">
+            <div>
+                <h2 class="text-xl font-bold text-slate-800">Bill Details</h2>
+                <p class="text-sm text-slate-500">Create a new payment request for students.</p>
+            </div>
+            <div class="bg-blue-50 text-blue-700 px-4 py-2 rounded-lg font-bold">
+                Bill ID: #@Model.NextBillId
+            </div>
+        </div>
+
+        <form id="generateBillForm" method="post" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Target Audience</label>
+                    <select asp-for="Input.TargetAudience" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                        <option value="Student">Student</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Bill Title <span class="text-red-500">*</span></label>
+                    <input type="text" asp-for="Input.Title" id="inputTitle" required placeholder="e.g. Semester 1 Tuition Fee" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" />
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Department</label>
+                    <select asp-for="Input.DepartmentId" asp-items="Model.DepartmentOptions" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                        <option value="">-- Select Department --</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Programme</label>
+                    <select asp-for="Input.ProgrammeId" asp-items="Model.ProgrammeOptions" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                        <option value="">-- Select Programme --</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Study Level</label>
+                    <select asp-for="Input.StudyLevel" id="inputStudyLevel" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                        <option value="">-- Select Level --</option>
+                        <option value="Diploma">Diploma</option>
+                        <option value="Degree">Degree</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-5 bg-slate-50 rounded-xl border border-slate-200">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-3">Billing Scope</label>
+                    <div class="flex gap-4">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" asp-for="Input.GenerationType" value="Bulk" class="w-4 h-4 text-blue-600 focus:ring-blue-500" checked onchange="updateFormVisibility()" />
+                            <span class="text-sm text-slate-700">Bulk Group</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" asp-for="Input.GenerationType" value="Individual" class="w-4 h-4 text-blue-600 focus:ring-blue-500" onchange="updateFormVisibility()" />
+                            <span class="text-sm text-slate-700">Individual Student</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-3">Bill Category</label>
+                    <div class="flex gap-4">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" asp-for="Input.BillCategory" value="School Fee" class="w-4 h-4 text-blue-600 focus:ring-blue-500" checked onchange="updateFormVisibility()" />
+                            <span class="text-sm text-slate-700">School Fee</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" asp-for="Input.BillCategory" value="Other" class="w-4 h-4 text-blue-600 focus:ring-blue-500" onchange="updateFormVisibility()" />
+                            <span class="text-sm text-slate-700">Other</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-5 border border-slate-200 rounded-xl space-y-4">
+
+                <div id="specificBillTypeContainer" class="hidden transition-all duration-300">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Select Fee Type <span class="text-red-500">*</span></label>
+                    <select asp-for="Input.SpecificBillType" id="inputSpecificBillType" class="w-full md:w-1/2 px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                        <option value="">-- Select Type --</option>
+                        <option value="Hostel Fee">Hostel Fee</option>
+                        <option value="Resit Payment">Resit Payment</option>
+                        <option value="Exam Payment">Exam Payment</option>
+                        <option value="Library Fine">Library Fine</option>
+                        <option value="Activity Fee">Activity Fee</option>
+                    </select>
+                </div>
+
+                <div id="studentIdContainer" class="hidden transition-all duration-300">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Student ID</label>
+                    <input type="text" asp-for="Input.StudentId" id="studentIdInput"
+                           placeholder="e.g. 00AAA00000"
+                           pattern="^\d{2}[A-Za-z]{3}\d{5}$"
+                           title="Must be format: XXWMRXXXX (e.g. 00AAA00000)"
+                           maxlength="10"
+                           class="w-full md:w-1/2 px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none uppercase" />
+                    <span asp-validation-for="Input.StudentId" class="text-xs text-red-500 block mt-1"></span>
+                </div>
+
+                <div id="bulkCriteriaContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6 transition-all duration-300">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Year</label>
+                        <select asp-for="Input.Year" id="inputYear" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                            <option value="">-- Select Year --</option>
+                            <option value="1">Year 1</option>
+                            <option value="2">Year 2</option>
+                            <option value="3">Year 3</option>
+                            <option value="4">Year 4</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Semester</label>
+                        <select asp-for="Input.Semester" id="inputSemester" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                            <option value="">-- Select Semester --</option>
+                            <option value="1">Semester 1</option>
+                            <option value="2">Semester 2</option>
+                            <option value="3">Semester 3</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="otherHelperText" class="hidden text-sm text-slate-500 italic py-2">
+                    Note: Bulk targeting applies to all selected Department/Programme students regardless of Year/Semester.
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Payment Description</label>
+                <textarea asp-for="Input.Description" rows="3" placeholder="Additional details about this bill..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none custom-scrollbar"></textarea>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Payment Amount (RM) <span class="text-red-500">*</span></label>
+                    <input type="number" asp-for="Input.Amount" id="inputAmount" required min="0.01" max="10000" step="0.01"
+                           placeholder="0.00"
+                           oninput="this.value = this.value.replace(/[^0-9.]/g, '')"
+                           class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" />
+                    <p class="text-xs text-slate-500 mt-1">Maximum amount is RM 10,000.00 (Digits only)</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Due Date <span class="text-red-500">*</span></label>
+                    <input type="date" asp-for="Input.DueDate" id="inputDueDate" required min="@DateTime.Now.ToString("yyyy-MM-dd")" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" />
+                </div>
+            </div>
+
+            <div class="pt-6 border-t border-slate-100 flex justify-end">
+                <button type="button" onclick="openConfirmModal()" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-900/20 transition-all flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Review & Generate
+                </button>
+            </div>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="bg-red-50 text-red-600 p-4 rounded-xl text-sm font-semibold">
+                    <div asp-validation-summary="All"></div>
+                </div>
+            }
+        </form>
+    </div>
+</div>
+
+<div id="confirmModal" class="hidden fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+        <h3 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">Confirm Bill Generation</h3>
+
+        <div class="space-y-3 text-sm text-slate-600 mb-6">
+            <p><span class="font-semibold text-slate-800">Title:</span> <span id="modalTitle"></span></p>
+            <p><span class="font-semibold text-slate-800">Generation Type:</span> <span id="modalType"></span></p>
+            <p><span class="font-semibold text-slate-800">Category:</span> <span id="modalCategory" class="font-bold text-blue-600"></span></p>
+            <p><span class="font-semibold text-slate-800">Amount:</span> RM <span id="modalAmount"></span></p>
+            <p><span class="font-semibold text-slate-800">Due Date:</span> <span id="modalDueDate"></span></p>
+
+            <div id="modalBulkDetails" class="hidden p-3 bg-blue-50 rounded-lg border border-blue-100 mt-2">
+                <p><span class="font-semibold text-blue-800">Level:</span> <span id="modalLevel"></span></p>
+                <div id="modalYearSemContainer" class="mt-1">
+                    <p><span class="font-semibold text-blue-800">Targeting:</span> Year <span id="modalYear"></span>, Semester <span id="modalSemester"></span></p>
+                </div>
+            </div>
+
+            <div id="modalIndividualDetails" class="hidden p-3 bg-blue-50 rounded-lg border border-blue-100 mt-2">
+                <p><span class="font-semibold text-blue-800">Target Student ID:</span> <span id="modalStudentId"></span></p>
+            </div>
+        </div>
+
+        <div class="flex justify-end gap-3">
+            <button onclick="closeConfirmModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition-all">Cancel</button>
+            <button onclick="submitForm()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-lg shadow-blue-900/20 transition-all">Confirm & Generate</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function updateFormVisibility() {
+            const isBulk = document.querySelector('input[name="Input.GenerationType"]:checked').value === 'Bulk';
+            const isSchoolFee = document.querySelector('input[name="Input.BillCategory"]:checked').value === 'School Fee';
+
+            // Student vs Bulk Logic fields
+            const studentContainer = document.getElementById('studentIdContainer');
+            const studentInput = document.getElementById('studentIdInput');
+            const bulkCriteriaContainer = document.getElementById('bulkCriteriaContainer');
+            const yearInput = document.getElementById('inputYear');
+            const semInput = document.getElementById('inputSemester');
+            const otherHelperText = document.getElementById('otherHelperText');
+
+            // "Other" Category fields
+            const specificBillTypeContainer = document.getElementById('specificBillTypeContainer');
+            const specificBillTypeInput = document.getElementById('inputSpecificBillType');
+
+            // Handle Bill Category Toggle
+            if (isSchoolFee) {
+                specificBillTypeContainer.classList.add('hidden');
+                specificBillTypeInput.required = false;
+            } else {
+                specificBillTypeContainer.classList.remove('hidden');
+                specificBillTypeInput.required = true;
+            }
+
+            // Handle Individual vs Bulk display
+            if (!isBulk) {
+                studentContainer.classList.remove('hidden');
+                studentInput.required = true;
+
+                bulkCriteriaContainer.classList.add('hidden');
+                otherHelperText.classList.add('hidden');
+
+                yearInput.required = false;
+                semInput.required = false;
+            } else {
+                studentContainer.classList.add('hidden');
+                studentInput.required = false;
+                studentInput.value = '';
+
+                if (isSchoolFee) {
+                    bulkCriteriaContainer.classList.remove('hidden');
+                    otherHelperText.classList.add('hidden');
+                    yearInput.required = true;
+                    semInput.required = true;
+                } else {
+                    bulkCriteriaContainer.classList.add('hidden');
+                    otherHelperText.classList.remove('hidden');
+                    yearInput.required = false;
+                    semInput.required = false;
+                    yearInput.value = '';
+                    semInput.value = '';
+                }
+            }
+        }
+
+        function openConfirmModal() {
+            const form = document.getElementById('generateBillForm');
+            if (!form.reportValidity()) {
+                return;
+            }
+
+            const isBulk = document.querySelector('input[name="Input.GenerationType"]:checked').value === 'Bulk';
+            const isSchoolFee = document.querySelector('input[name="Input.BillCategory"]:checked').value === 'School Fee';
+
+            // Establish exact final category name
+            let finalCategoryText = isSchoolFee ? 'School Fee' : document.getElementById('inputSpecificBillType').value;
+
+            document.getElementById('modalTitle').textContent = document.getElementById('inputTitle').value;
+            document.getElementById('modalType').textContent = isBulk ? 'Bulk Group' : 'Individual Student';
+            document.getElementById('modalCategory').textContent = finalCategoryText;
+            document.getElementById('modalAmount').textContent = document.getElementById('inputAmount').value;
+            document.getElementById('modalDueDate').textContent = document.getElementById('inputDueDate').value;
+
+            if (isBulk) {
+                document.getElementById('modalBulkDetails').classList.remove('hidden');
+                document.getElementById('modalIndividualDetails').classList.add('hidden');
+                document.getElementById('modalLevel').textContent = document.getElementById('inputStudyLevel').value || 'All Levels';
+
+                if (isSchoolFee) {
+                    document.getElementById('modalYearSemContainer').classList.remove('hidden');
+                    document.getElementById('modalYear').textContent = document.getElementById('inputYear').value;
+                    document.getElementById('modalSemester').textContent = document.getElementById('inputSemester').value;
+                } else {
+                    document.getElementById('modalYearSemContainer').classList.add('hidden');
+                }
+            } else {
+                document.getElementById('modalBulkDetails').classList.add('hidden');
+                document.getElementById('modalIndividualDetails').classList.remove('hidden');
+                document.getElementById('modalStudentId').textContent = document.getElementById('studentIdInput').value;
+            }
+
+            document.getElementById('confirmModal').classList.remove('hidden');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.add('hidden');
+        }
+
+        function submitForm() {
+            document.getElementById('generateBillForm').submit();
+        }
+
+        document.addEventListener('DOMContentLoaded', updateFormVisibility);
+    </script>
+}

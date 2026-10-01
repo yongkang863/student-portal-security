@@ -1,0 +1,78 @@
+@page
+@model FYP.Pages.Admin.Academic.CoCurriculum.AddModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Add Co-curriculum";
+}
+
+<div class="max-w-3xl mx-auto space-y-6">
+
+    <div class="flex justify-between items-end">
+        <div>
+            <h1 class="text-2xl font-bold font-serif text-slate-800">Add New Activity</h1>
+            <p class="text-sm text-slate-500 mt-1">Create a new co-curriculum offering.</p>
+        </div>
+        <a href="/Admin/Academic/CoCurriculum/Index" class="text-sm font-medium text-slate-500 hover:text-blue-600 transition-colors">
+            &larr; Back to List
+        </a>
+    </div>
+
+    <form method="post" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-8 space-y-6">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Activity Code</label>
+                    <input asp-for="Input.Code" maxlength="10" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none uppercase font-mono" placeholder="e.g. CC101 (Max 10)" />
+                    <span asp-validation-for="Input.Code" class="text-xs text-red-500 mt-1 block"></span>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Activity Name</label>
+                    <input asp-for="Input.Name" maxlength="30" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="e.g. Photography (Max 30)" />
+                    <span asp-validation-for="Input.Name" class="text-xs text-red-500 mt-1 block"></span>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Category</label>
+                    <select asp-for="Input.Category" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        <option value="">-- Select Category --</option>
+                        <option value="Sports & Recreation">Sports & Recreation</option>
+                        <option value="Clubs & Societies">Clubs & Societies</option>
+                        <option value="Uniformed Bodies">Uniformed Bodies</option>
+                        <option value="Arts & Culture">Arts & Culture</option>
+                    </select>
+                    <span asp-validation-for="Input.Category" class="text-xs text-red-500 mt-1 block"></span>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Maximum Capacity</label>
+                    <input asp-for="Input.MaxCapacity" type="number" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="e.g. 30" />
+                    <span asp-validation-for="Input.MaxCapacity" class="text-xs text-red-500 mt-1 block"></span>
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Schedule (Day & Time)</label>
+                    <input asp-for="Input.DayAndTimeRange" maxlength="40" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="e.g. Wed (2:00 PM - 5:00 PM) (Max 40)" />
+                    <span asp-validation-for="Input.DayAndTimeRange" class="text-xs text-red-500 mt-1 block"></span>
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Venue</label>
+                    <input asp-for="Input.Venue" maxlength="30" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="e.g. Block A (Max 30)" />
+                    <span asp-validation-for="Input.Venue" class="text-xs text-red-500 mt-1 block"></span>
+                </div>
+            </div>
+
+            <div class="p-4 bg-blue-50 rounded-lg border border-blue-100 mt-4">
+                <p class="text-sm text-blue-800"><i class="fa-solid fa-circle-info mr-2"></i><strong>Note:</strong> The registration window (Start/End Dates) is inherited automatically from your global settings.</p>
+            </div>
+
+        </div>
+
+        <div class="px-8 py-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-3">
+            <a href="/Admin/Academic/CoCurriculum/Index" class="px-4 py-2 text-slate-600 font-bold hover:bg-slate-200 rounded-lg transition-colors">Cancel</a>
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition-all">Create Activity</button>
+        </div>
+    </form>
+</div>

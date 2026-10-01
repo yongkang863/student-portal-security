@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Ronnie University</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #05010d; /* Deepest purple/black */
+        }
+
+        /* Futuristic Neon Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(59, 7, 100, 0.2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(168, 85, 247, 0.4);
+            border-radius: 10px;
+        }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: rgba(217, 70, 239, 0.6);
+                box-shadow: 0 0 10px #d946ef;
+            }
+
+        /* Smooth Entrance Animations */
+        @@keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+                filter: blur(4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+                filter: blur(0);
+            }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+        }
+    </style>
+</head>
+
+@* --- INJECT DATABASE & FETCH USER DETAILS --- *@
+@using Microsoft.EntityFrameworkCore
+@using System.Security.Claims
+@inject FYP.Database.DB _context
+
+@{
+                // Defaults
+                string userLevel = "Undergraduate";
+                string userPhotoBase64 = null;
+
+                // Get the current User ID from the cookie
+                var uidString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                // Fetch User Data (Level + Photo)
+                if (!string.IsNullOrEmpty(uidString) && int.TryParse(uidString, out int uid))
+                {
+                                var currentUser = _context.Users.Include(u => u.Programme).FirstOrDefault(u => u.Uid == uid);
+                                if (currentUser != null)
+                                {
+                                                // 1. Get Programme Level
+                                                if (currentUser.Programme != null) { userLevel = currentUser.Programme.Level; }
+
+                                                // 2. Get Profile Photo
+                                                if (currentUser.Photo != null && currentUser.Photo.Length > 0)
+                                                {
+                                                                string base64 = Convert.ToBase64String(currentUser.Photo);
+                                                                userPhotoBase64 = $"data:image/jpg;base64,{base64}";
+                                                }
+                                }
+                }
+}
+
+<body class="text-purple-100 flex h-screen overflow-hidden selection:bg-fuchsia-500/40 selection:text-white relative">
+
+    <div class="fixed inset-0 z-0 pointer-events-none bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-fuchsia-900/20 via-purple-950/40 to-black"></div>
+    <div class="fixed inset-0 z-0 pointer-events-none bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-violet-900/20 via-transparent to-transparent"></div>
+
+    @* --- MOBILE BACKDROP (Click to close sidebar on mobile) --- *@
+    <div id="mobile-backdrop" class="fixed inset-0 bg-black/60 z-40 hidden backdrop-blur-sm transition-opacity md:hidden" onclick="toggleSidebar()"></div>
+
+    @* --- SIDEBAR --- *@
+    <aside id="main-sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-purple-950/95 backdrop-blur-2xl md:bg-purple-950/30 md:backdrop-blur-xl flex flex-col border-r border-purple-500/20 shadow-[10px_0_30px_rgba(88,28,135,0.3)] transition-transform duration-300 ease-in-out transform -translate-x-full md:translate-x-0 md:static flex-shrink-0 overflow-hidden">
+
+        <a href="/Student/Homepage" class="h-16 flex items-center px-6 border-b border-purple-500/20 min-w-[16rem] relative z-10 hover:bg-white/5 transition-colors group text-decoration-none">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-fuchsia-600 to-purple-700 shadow-[0_0_15px_rgba(217,70,239,0.5)] flex items-center justify-center mr-3 border border-fuchsia-400/50 group-hover:scale-110 transition-transform duration-300">
+                <i class="fa-solid fa-graduation-cap text-white text-sm"></i>
+            </div>
+            <span class="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-purple-200 tracking-wide whitespace-nowrap">Ronnie University</span>
+        </a>
+
+        @* --- DYNAMIC NAVIGATION LOGIC --- *@
+        @{
+            var currentAction = ViewContext.RouteData.Values["page"]?.ToString()?.Split('/').LastOrDefault() ?? "";
+            // "Active" style (Neon Glow)
+            string activeLink = "bg-gradient-to-r from-purple-600/20 to-fuchsia-600/10 text-fuchsia-300 border-fuchsia-500/30 shadow-[0_0_15px_rgba(217,70,239,0.15)]";
+            // "Inactive" style (Transparent)
+            string inactiveLink = "text-purple-300/70 hover:text-white hover:bg-purple-500/10 hover:border-purple-500/20 border-transparent";
+            string GetStatus(string actionName)
+            {
+                return string.Equals(currentAction, actionName, StringComparison.OrdinalIgnoreCase) ? activeLink : inactiveLink;
+            }
+        }
+
+        <nav class="flex-1 py-6 px-3 space-y-2 overflow-y-auto min-w-[16rem] relative z-10">
+
+            @* --- 1. ANNOUNCEMENT --- *@
+            <a href="/Student/Announcement" class="flex items-center px-3 py-2.5 rounded-xl border font-medium transition-all group @GetStatus("Announcement")">
+                <i class="fa-solid fa-bullhorn w-6 text-center mr-2 group-hover:scale-110 transition-all"></i>
+                Announcement
+            </a>
+
+            @* --- 2. ACADEMIC PROGRAM --- *@
+            <div class="relative group/menu">
+                <button class="w-full flex items-center justify-between px-3 py-2.5 text-purple-300/70 hover:text-white hover:bg-purple-500/10 border border-transparent rounded-xl font-medium transition-all">
+                    <span class="flex items-center"><i class="fa-solid fa-book-open w-6 text-center mr-2"></i> Academic Program</span>
+                    <i class="fa-solid fa-chevron-down text-[10px] transition-transform group-hover/menu:rotate-180"></i>
+                </button>
+                <div class="hidden group-hover/menu:block ml-4 mt-1 space-y-1 border-l border-purple-500/30 pl-2">
+                    <a href="/Student/ProgrammeStructure" class="@(currentAction == "ProgrammeStructure" ? "text-fuchsia-300 font-bold" : "text-purple-400") block px-3 py-2 text-sm hover:text-fuchsia-300 transition-colors">View Programme Structure</a>
+                    <a href="/Student/Timetable" class="@(currentAction == "Timetable" ? "text-fuchsia-300 font-bold" : "text-purple-400") block px-3 py-2 text-sm hover:text-fuchsia-300 transition-colors">View Course Timetable</a>
+                    <a href="/Student/AcademicAdvisory" class="@(currentAction == "AcademicAdvisory" ? "text-fuchsia-300 font-bold" : "text-purple-400") block px-3 py-2 text-sm hover:text-fuchsia-300 transition-colors">View Academic Advisory</a>
+                    <a href="/Student/CoCurriculum" class="@(currentAction == "CoCurriculum" ? "text-fuchsia-300 font-bold" : "text-purple-400") block px-3 py-2 text-sm hover:text-fuchsia-300 transition-colors">Co-curriculum Registration</a>
+                </div>
+            </div>
+
+            @* --- 3. EXAMINATION --- *@
+            <div class="relative group/menu">
+                <button class="w-full flex items-center justify-between px-3 py-2.5 text-purple-300/70 hover:text-white hover:bg-purple-500/10 border border-transparent rounded-xl font-medium transition-all">
+                    <span class="flex items-center"><i class="fa-solid fa-file-signature w-6 text-center mr-2"></i> Examination</span>
+                    <i class="fa-solid fa-chevron-down text-[10px] transition-transform group-hover/menu:rotate-180"></i>
+                </button>
+                <div class="hidden group-hover/menu:block ml-4 mt-1 space-y-1 border-l border-purple-500/30 pl-2">
+                    <a href="/Student/ExamTimetable" class="@(currentAction == "ExamTimetable" ? "text-fuchsia-300 font-bold" : "text-purple-400") block px-3 py-2 text-sm hover:text-fuchsia-300 transition-colors">Examination Timetable</a>
+                    <a href="/Student/SemesterResult" class="@(currentAction == "SemesterResult" ? "text-fuchsia-300 font-bold" : "text-purple-400") block px-3 py-2 text-sm hover:text-fuchsia-300 transition-colors">Semester Result</a>
+                    <a href="/Student/OverallResult" class="@(currentAction == "OverallResult" ? "text-fuchsia-300 font-bold" : "text-purple-400") block px-3 py-2 text-sm hover:text-fuchsia-300 transition-colors">Overall Result</a>
+                </div>
+            </div>
+
+            @* --- 4. ATTENDANCE --- *@
+            <div class="relative group/menu">
+                <button class="w-full flex items-center justify-between px-3 py-2.5 text-purple-300/70 hover:text-white hover:bg-purple-500/10 border border-transparent rounded-xl font-medium transition-all">
+                    <span class="flex items-center"><i class="fa-solid fa-calendar-check w-6 text-center mr-2"></i> Attendance</span>
+                    <i class="fa-solid fa-chevron-down text-[10px] transition-transform group-hover/menu:rotate-180"></i>
+                </button>
+                <div class="hidden group-hover/menu:block ml-4 mt-1 space-y-1 border-l border-purple-500/30 pl-2">
+                    <a href="/Student/AttendanceRecord" class="@(currentAction == "AttendanceRecord" ? "text-fuchsia-300 font-bold" : "text-purple-400") block px-3 py-2 text-sm hover:text-fuchsia-300 transition-colors">View Attendance Record</a>
+                    <a href="/Student/AttendanceRegistration" class="@(currentAction == "AttendanceRegistration" ? "text-fuchsia-300 font-bold" : "text-purple-400") block px-3 py-2 text-sm hover:text-fuchsia-300 transition-colors">Attendance Registration</a>
+                </div>
+            </div>
+
+            @* --- 5. APPLICATION (UPDATED) --- *@
+            <div class="relative group/menu">
+                <button class="w-full flex items-center justify-between px-3 py-2.5 text-purple-300/70 hover:text-white hover:bg-purple-500/10 border border-transparent rounded-xl font-medium transition-all">
+                    <span class="flex items-center"><i class="fa-solid fa-file-pen w-6 text-center mr-2"></i> Application</span>
+                    <i class="fa-solid fa-chevron-down text-[10px] transition-transform group-hover/menu:rotate-180"></i>
+                </button>
+                <div class="hidden group-hover/menu:block ml-4 mt-1 space-y-1 border-l border-purple-500/30 pl-2">
+                    <a href="/Student/Facility" class="@(currentAction == "Facility" || currentAction == "Index" ? "text-fuchsia-300 font-bold" : "text-purple-400") block px-3 py-2 text-sm hover:text-fuchsia-300 transition-colors">View Facilities</a>
+                    <a href="/Student/ViewLeave" class="@(currentAction == "ViewLeave" ? "text-fuchsia-300 font-bold" : "text-purple-400") block px-3 py-2 text-sm hover:text-fuchsia-300 transition-colors">View Leave</a>
+                    <a href="/Student/ApplyLeave" class="@(currentAction == "ApplyLeave" ? "text-fuchsia-300 font-bold" : "text-purple-400") block px-3 py-2 text-sm hover:text-fuchsia-300 transition-colors">Apply Leave</a>
+                </div>
+            </div>
+
+            @* --- 6. FINANCIAL --- *@
+            <div class="relative group/menu">
+                <button class="w-full flex items-center justify-between px-3 py-2.5 text-purple-300/70 hover:text-white hover:bg-purple-500/10 border border-transparent rounded-xl font-medium transition-all">
+                    <span class="flex items-center"><i class="fa-solid fa-wallet w-6 text-center mr-2"></i> Financial</span>
+                    <i class="fa-solid fa-chevron-down text-[10px] transition-transform group-hover/menu:rotate-180"></i>
+                </button>
+                <div class="hidden group-hover/menu:block ml-4 mt-1 space-y-1 border-l border-purple-500/30 pl-2">
+                    <a href="/Student/CurrentBilling" class="@(currentAction == "CurrentBilling" ? "text-fuchsia-300 font-bold" : "text-purple-400") block px-3 py-2 text-sm hover:text-fuchsia-300 transition-colors">Current Billing</a>
+                    <a href="/Student/PaymentHistory" class="@(currentAction == "PaymentHistory" ? "text-fuchsia-300 font-bold" : "text-purple-400") block px-3 py-2 text-sm hover:text-fuchsia-300 transition-colors">Payment History</a>
+                </div>
+            </div>
+
+            @* --- 7. LOGIN ACTIVITY --- *@
+            <a href="/Student/LoginActivity" class="flex items-center px-3 py-2.5 rounded-xl border font-medium transition-all group @GetStatus("LoginActivity")">
+                <i class="fa-solid fa-clock-rotate-left w-6 text-center mr-2 group-hover:text-violet-400 transition-colors"></i>
+                Login Activity
+            </a>
+
+        </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col relative overflow-hidden z-10 h-full">
+
+        <header class="h-16 bg-black/20 backdrop-blur-xl border-b border-purple-500/20 flex items-center justify-between px-6 z-10 sticky top-0 shadow-[0_10px_30px_-10px_rgba(88,28,135,0.2)]">
+
+            <div class="flex items-center gap-4">
+                <button id="sidebarToggle" class="w-10 h-10 rounded-xl bg-purple-900/30 border border-purple-500/30 text-purple-300 hover:text-white hover:bg-purple-800/50 hover:border-fuchsia-500/50 hover:shadow-[0_0_15px_rgba(217,70,239,0.3)] transition-all focus:outline-none">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <h1 class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-purple-300 tracking-tight hidden sm:block">@ViewData["Title"]</h1>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="relative group z-50">
+                    <div class="flex items-center gap-3 pl-4 border-l border-purple-500/30 hover:cursor-pointer pb-2 pt-2">
+                        <div class="text-right hidden sm:block">
+                            <div class="text-sm font-semibold text-purple-100 group-hover:text-fuchsia-300 transition-colors">
+                                @(User.Identity?.Name ?? "Student")
+                            </div>
+                            <div class="text-xs text-purple-400/70">@userLevel</div>
+                        </div>
+
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-900/50 to-fuchsia-900/50 border border-purple-500/40 flex items-center justify-center text-purple-300 group-hover:border-fuchsia-400 group-hover:text-white group-hover:shadow-[0_0_20px_rgba(217,70,239,0.4)] transition-all duration-300 overflow-hidden">
+                            @if (!string.IsNullOrEmpty(userPhotoBase64))
+                            {
+                                <img src="@userPhotoBase64" alt="Profile" class="w-full h-full object-cover" />
+                            }
+                            else
+                            {
+                                <i class="fa-solid fa-user"></i>
+                            }
+                        </div>
+                        <i class="fa-solid fa-chevron-down text-xs text-purple-500 group-hover:text-fuchsia-400 transition-colors ml-1"></i>
+                    </div>
+
+                    <div class="absolute right-0 top-full mt-1 w-56 bg-purple-950/90 backdrop-blur-xl border border-purple-500/30 rounded-xl shadow-[0_10px_40px_-10px_rgba(88,28,135,0.6)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right translate-y-2 group-hover:translate-y-0 overflow-hidden">
+                        <div class="py-2">
+                            <a href="/Student/Profile" class="block px-4 py-3 text-sm text-purple-200 hover:bg-fuchsia-600/20 hover:text-white transition-colors flex items-center gap-3">
+                                <i class="fa-regular fa-id-card text-fuchsia-400 w-5"></i> View Profile
+                            </a>
+                            <a href="/Student/ChangePassword" class="block px-4 py-3 text-sm text-purple-200 hover:bg-fuchsia-600/20 hover:text-white transition-colors flex items-center gap-3">
+                                <i class="fa-solid fa-key text-violet-400 w-5"></i> Change Password
+                            </a>
+                            <div class="h-px bg-purple-500/30 my-1 mx-2"></div>
+                            <a href="/Student/Logout" class="block px-4 py-3 text-sm text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition-colors flex items-center gap-3">
+                                <i class="fa-solid fa-arrow-right-from-bracket w-5"></i> Sign Out
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="p-8 flex-1 overflow-y-auto">
+            <div class="max-w-7xl mx-auto">
+                @RenderBody()
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Toggle Sidebar Function
+        function toggleSidebar() {
+            const sidebar = document.getElementById('main-sidebar');
+            const backdrop = document.getElementById('mobile-backdrop');
+            const isMobile = window.innerWidth < 768; // Tailwind md breakpoint
+
+            if (isMobile) {
+                // Mobile: Toggle slide-in and backdrop
+                sidebar.classList.toggle('-translate-x-full');
+                backdrop.classList.toggle('hidden');
+            } else {
+                // Desktop: Toggle collapse (width)
+                if (sidebar.classList.contains('w-64')) {
+                    sidebar.classList.remove('w-64');
+                    sidebar.classList.add('w-0');
+                    // Hide content when collapsed to prevent overflow text
+                    sidebar.querySelectorAll('.min-w-\\[16rem\\]').forEach(el => el.classList.add('hidden'));
+                } else {
+                    sidebar.classList.remove('w-0');
+                    sidebar.classList.add('w-64');
+                    // Show content again
+                    sidebar.querySelectorAll('.min-w-\\[16rem\\]').forEach(el => el.classList.remove('hidden'));
+                }
+            }
+        }
+
+        document.getElementById('sidebarToggle').addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleSidebar();
+        });
+
+        // Auto Logout Logic
+        const inactivityTime = function () {
+            let time;
+            const timeoutDuration = 900000; // 15 Minutes
+
+            function triggerAutoLogout() {
+                window.location.href = '/Student/Logout?reason=timeout';
+            }
+            function resetTimer() {
+                clearTimeout(time);
+                time = setTimeout(triggerAutoLogout, timeoutDuration);
+            }
+
+            window.onload = resetTimer;
+            document.onmousemove = resetTimer;
+            document.onkeydown = resetTimer;
+            document.onclick = resetTimer;
+        };
+        inactivityTime();
+    </script>
+
+    @* --- SCRIPT SECTION RENDERER --- *@
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>

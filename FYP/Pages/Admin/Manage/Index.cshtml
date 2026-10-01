@@ -1,0 +1,454 @@
+@page
+@model FYP.Pages.Admin.Manage.IndexModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Data Directory";
+}
+
+<div class="max-w-7xl mx-auto space-y-6 relative">
+
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800 tracking-tight">System Directory</h1>
+            <p class="text-sm text-slate-500 mt-1">Manage existing academic and facility records.</p>
+        </div>
+        <a href="/Admin/Manage/Create" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-900/20 transition-all flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            Add New Record
+        </a>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="p-4 bg-emerald-50 text-emerald-700 rounded-xl border border-emerald-200 flex items-center">
+            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            @Model.SuccessMessage
+        </div>
+    }
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="p-4 bg-rose-50 text-rose-700 rounded-xl border border-rose-200 flex items-center">
+            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            @Model.ErrorMessage
+        </div>
+    }
+
+    <div class="flex space-x-2 bg-slate-200/50 p-1 rounded-xl w-max">
+        <button onclick="switchTab('dept')" id="tab-dept" class="tab-btn px-6 py-2.5 text-sm font-bold rounded-lg bg-white text-blue-600 shadow-sm transition-all">Departments</button>
+        <button onclick="switchTab('prog')" id="tab-prog" class="tab-btn px-6 py-2.5 text-sm font-bold rounded-lg text-slate-500 hover:text-slate-700 transition-all">Programmes</button>
+        <button onclick="switchTab('course')" id="tab-course" class="tab-btn px-6 py-2.5 text-sm font-bold rounded-lg text-slate-500 hover:text-slate-700 transition-all">Courses</button>
+        <button onclick="switchTab('venue')" id="tab-venue" class="tab-btn px-6 py-2.5 text-sm font-bold rounded-lg text-slate-500 hover:text-slate-700 transition-all">Venues</button>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+
+        <div id="content-dept" class="tab-content overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead class="bg-slate-50 text-slate-600 border-b border-slate-200">
+                    <tr>
+                        <th class="px-6 py-4 font-bold uppercase tracking-wider text-xs">ID</th>
+                        <th class="px-6 py-4 font-bold uppercase tracking-wider text-xs w-full">Department Name</th>
+                        <th class="px-6 py-4 font-bold uppercase tracking-wider text-xs text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @foreach (var item in Model.Departments)
+                    {
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-6 py-4 font-mono text-slate-500">@item.Id</td>
+                            <td class="px-6 py-4 font-bold text-slate-800">@item.DepartmentName</td>
+                            <td class="px-6 py-4 text-right flex justify-end gap-1">
+                                <button type="button" onclick="openEditDept(@item.Id, '@item.DepartmentName.Replace("'", "\\'")')" class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                </button>
+                                <form method="post" asp-page-handler="DeleteDepartment" asp-route-id="@item.Id" onsubmit="return confirm('Deleting this department will delete ALL linked programmes. Are you absolutely sure?');" class="inline">
+                                    <button type="submit" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div id="content-prog" class="tab-content hidden overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead class="bg-slate-50 text-slate-600 border-b border-slate-200">
+                    <tr>
+                        <th class="px-6 py-4 font-bold uppercase tracking-wider text-xs">Code</th>
+                        <th class="px-6 py-4 font-bold uppercase tracking-wider text-xs w-full">Programme Name</th>
+                        <th class="px-6 py-4 font-bold uppercase tracking-wider text-xs">Level</th>
+                        <th class="px-6 py-4 font-bold uppercase tracking-wider text-xs">Department</th>
+                        <th class="px-6 py-4 font-bold uppercase tracking-wider text-xs text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @foreach (var item in Model.Programmes)
+                    {
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-6 py-4 font-mono font-bold text-blue-600">@item.Code</td>
+                            <td class="px-6 py-4 font-bold text-slate-800">@item.Name</td>
+                            <td class="px-6 py-4">
+                                <span class="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-lg bg-slate-100 text-slate-600">@item.Level</span>
+                            </td>
+                            <td class="px-6 py-4 text-slate-500">@(item.Department?.DepartmentName ?? "N/A")</td>
+                            <td class="px-6 py-4 text-right flex justify-end gap-1">
+                                <button type="button" onclick="openEditProg(@item.Id, '@item.Code', '@item.Name.Replace("'", "\\'")', '@item.Level', '@item.DepartmentId', @item.YearToComplete)" class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                </button>
+                                <form method="post" asp-page-handler="DeleteProgramme" asp-route-id="@item.Id" onsubmit="return confirm('Are you sure you want to delete this programme?');" class="inline">
+                                    <button type="submit" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div id="content-course" class="tab-content hidden overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead class="bg-slate-50 text-slate-600 border-b border-slate-200">
+                    <tr>
+                        <th class="px-6 py-4 font-bold uppercase tracking-wider text-xs">Code</th>
+                        <th class="px-6 py-4 font-bold uppercase tracking-wider text-xs w-full">Course Title</th>
+                        <th class="px-6 py-4 font-bold uppercase tracking-wider text-xs text-center">Credits</th>
+                        <th class="px-6 py-4 font-bold uppercase tracking-wider text-xs text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @foreach (var item in Model.Courses)
+                    {
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-6 py-4 font-mono font-bold text-blue-600">@item.Code</td>
+                            <td class="px-6 py-4 font-bold text-slate-800">@item.Title</td>
+                            <td class="px-6 py-4 text-center font-bold text-slate-600">@item.CreditHours</td>
+                            <td class="px-6 py-4 text-right flex justify-end gap-1">
+                                <button type="button" onclick="openEditCourse(@item.Id, '@item.Code', '@item.Title.Replace("'", "\\'")', @item.CreditHours)" class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                </button>
+                                <form method="post" asp-page-handler="DeleteCourse" asp-route-id="@item.Id" onsubmit="return confirm('Are you sure you want to delete this course?');" class="inline">
+                                    <button type="submit" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div id="content-venue" class="tab-content hidden overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead class="bg-slate-50 text-slate-600 border-b border-slate-200">
+                    <tr>
+                        <th class="px-6 py-4 font-bold uppercase tracking-wider text-xs">Photo</th>
+                        <th class="px-6 py-4 font-bold uppercase tracking-wider text-xs w-full">Venue Name</th>
+                        <th class="px-6 py-4 font-bold uppercase tracking-wider text-xs">Room</th>
+                        <th class="px-6 py-4 font-bold uppercase tracking-wider text-xs text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @foreach (var item in Model.Venues)
+                    {
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-6 py-4">
+                                @if (item.Photo != null && item.Photo.Length > 0)
+                                {
+                                    <div class="w-12 h-12 rounded-lg bg-cover bg-center border border-slate-200" style="background-image: url('data:image/jpeg;base64,@Convert.ToBase64String(item.Photo)')"></div>
+                                }
+                                else
+                                {
+                                    <div class="w-12 h-12 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                    </div>
+                                }
+                            </td>
+                            <td class="px-6 py-4 font-bold text-slate-800">@item.Name</td>
+                            <td class="px-6 py-4 text-slate-500 font-mono">@(string.IsNullOrEmpty(item.Classroom) ? "N/A" : item.Classroom)</td>
+                            <td class="px-6 py-4 text-right flex justify-end gap-1 mt-3">
+                                <button type="button" onclick="openEditVenue(@item.Id, '@item.Name.Replace("'", "\\'")', '@(item.Classroom ?? "")', '@item.Latitude', '@item.Longitude')" class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                </button>
+                                <form method="post" asp-page-handler="DeleteVenue" asp-route-id="@item.Id" onsubmit="return confirm('Are you sure you want to delete this venue?');" class="inline">
+                                    <button type="submit" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="modal-edit-dept" class="fixed inset-0 z-[100] hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" onclick="closeModal('modal-edit-dept')"></div>
+    <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+        <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md">
+                <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                    <h3 class="text-lg font-bold text-slate-800">Edit Department</h3>
+                    <button type="button" onclick="closeModal('modal-edit-dept')" class="text-slate-400 hover:text-slate-600"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                </div>
+                <form method="post" asp-page-handler="EditDepartment" class="p-6 space-y-5">
+                    <input type="hidden" id="editDeptId" asp-for="EditDepartment.Id" />
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Department Name</label>
+                        <input type="text" id="editDeptName" asp-for="EditDepartment.DepartmentName" required placeholder="e.g. Faculty of Computing" oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none" />
+                    </div>
+                    <div class="pt-4 border-t border-slate-100 flex justify-end gap-3">
+                        <button type="button" onclick="closeModal('modal-edit-dept')" class="px-4 py-2 text-slate-600 font-bold hover:bg-slate-100 rounded-lg transition-colors">Cancel</button>
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition-all">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modal-edit-prog" class="fixed inset-0 z-[100] hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" onclick="closeModal('modal-edit-prog')"></div>
+    <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+        <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-xl">
+                <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                    <h3 class="text-lg font-bold text-slate-800">Edit Programme</h3>
+                    <button type="button" onclick="closeModal('modal-edit-prog')" class="text-slate-400 hover:text-slate-600"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                </div>
+                <form method="post" asp-page-handler="EditProgramme" class="p-6 space-y-5">
+                    <input type="hidden" id="editProgId" asp-for="EditProgramme.Id" />
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Programme Code</label>
+                            <input type="text" id="editProgCode" asp-for="EditProgramme.Code" required maxlength="4" placeholder="e.g. RSW" oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '').toUpperCase().substring(0,4)" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none uppercase" />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Study Level</label>
+                            <select id="editProgLevel" asp-for="EditProgramme.Level" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none">
+                                <option value="Diploma">Diploma</option>
+                                <option value="Degree">Degree</option>
+                                <option value="Master">Master</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Programme Name</label>
+                            <input type="text" id="editProgName" asp-for="EditProgramme.Name" required placeholder="e.g. Software Engineering" oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none" />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Linked Department</label>
+                            <select id="editProgDept" asp-for="EditProgramme.DepartmentId" asp-items="Model.DepartmentOptions" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none">
+                                <option value="">-- Select Department --</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Years to Complete</label>
+                            <input type="number" id="editProgYear" asp-for="EditProgramme.YearToComplete" required min="1" max="3" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none" />
+                        </div>
+                    </div>
+                    <div class="pt-4 border-t border-slate-100 flex justify-end gap-3">
+                        <button type="button" onclick="closeModal('modal-edit-prog')" class="px-4 py-2 text-slate-600 font-bold hover:bg-slate-100 rounded-lg transition-colors">Cancel</button>
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition-all">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modal-edit-course" class="fixed inset-0 z-[100] hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" onclick="closeModal('modal-edit-course')"></div>
+    <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+        <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-xl">
+                <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                    <h3 class="text-lg font-bold text-slate-800">Edit Course</h3>
+                    <button type="button" onclick="closeModal('modal-edit-course')" class="text-slate-400 hover:text-slate-600"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                </div>
+                <form method="post" asp-page-handler="EditCourse" class="p-6 space-y-5">
+                    <input type="hidden" id="editCourseId" asp-for="EditCourse.Id" />
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Course Code</label>
+                            <input type="text" id="editCourseCode" asp-for="EditCourse.Code" required placeholder="e.g. BACS2063" oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '')" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none uppercase" />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Credit Hours</label>
+                            <input type="number" id="editCourseCredits" asp-for="EditCourse.CreditHours" required min="1" max="4" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none" />
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Course Title</label>
+                            <input type="text" id="editCourseTitle" asp-for="EditCourse.Title" required placeholder="e.g. Data Structures" oninput="this.value = this.value.replace(/[^a-zA-Z0-9\s]/g, '')" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none" />
+                        </div>
+                    </div>
+                    <div class="pt-4 border-t border-slate-100 flex justify-end gap-3">
+                        <button type="button" onclick="closeModal('modal-edit-course')" class="px-4 py-2 text-slate-600 font-bold hover:bg-slate-100 rounded-lg transition-colors">Cancel</button>
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition-all">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modal-edit-venue" class="fixed inset-0 z-[100] hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" onclick="closeModal('modal-edit-venue')"></div>
+    <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+        <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-xl">
+                <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                    <h3 class="text-lg font-bold text-slate-800">Edit Venue</h3>
+                    <button type="button" onclick="closeModal('modal-edit-venue')" class="text-slate-400 hover:text-slate-600"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                </div>
+                <form method="post" asp-page-handler="EditVenue" enctype="multipart/form-data" class="p-6 space-y-5">
+                    <input type="hidden" id="editVenueId" asp-for="EditVenue.Id" />
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Venue Name</label>
+                            <input type="text" id="editVenueName" asp-for="EditVenue.Name" required placeholder="e.g. Block A" oninput="this.value = this.value.replace(/[^a-zA-Z0-9\s]/g, '')" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none" />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Classroom / Room Number</label>
+                            <input type="text" id="editVenueRoom" asp-for="EditVenue.Classroom" maxlength="4" placeholder="e.g. A201" oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '').substring(0,4)" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none uppercase" />
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Location Coordinates</label>
+                            <div id="editMap" class="w-full h-64 bg-slate-200 rounded-xl mb-3 border border-slate-300 z-0"></div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <input type="number" id="editLatInput" asp-for="EditVenue.Latitude" step="0.000001" placeholder="Latitude" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none" />
+                                <input type="number" id="editLngInput" asp-for="EditVenue.Longitude" step="0.000001" placeholder="Longitude" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none" />
+                            </div>
+                        </div>
+
+                        <div class="md:col-span-2 pt-2 border-t border-slate-100">
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Venue Photo (Leave blank to keep existing)</label>
+                            <input type="file" name="EditVenuePhoto" accept="image/*" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+                        </div>
+                    </div>
+                    <div class="pt-4 border-t border-slate-100 flex justify-end gap-3">
+                        <button type="button" onclick="closeModal('modal-edit-venue')" class="px-4 py-2 text-slate-600 font-bold hover:bg-slate-100 rounded-lg transition-colors">Cancel</button>
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition-all">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <script>
+        // Tab switching logic
+        function switchTab(tabName) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('bg-white', 'text-blue-600', 'shadow-sm');
+        btn.classList.add('text-slate-500');
+        });
+        document.getElementById('content-' + tabName).classList.remove('hidden');
+        const activeBtn = document.getElementById('tab-' + tabName);
+        activeBtn.classList.remove('text-slate-500');
+        activeBtn.classList.add('bg-white', 'text-blue-600', 'shadow-sm');
+            
+        // Check session storage to maintain active tab on page reload
+        sessionStorage.setItem('activeDirectoryTab', tabName);
+        }
+
+        // Restore active tab if previously set
+        document.addEventListener("DOMContentLoaded", () => {
+        let active = sessionStorage.getItem('activeDirectoryTab') || 'dept';
+        switchTab(active);
+        });
+
+        // -------------------------
+        // Modal Logic
+        // -------------------------
+        function closeModal(modalId) {
+        document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function openEditDept(id, name) {
+        document.getElementById('editDeptId').value = id;
+        document.getElementById('editDeptName').value = name;
+        document.getElementById('modal-edit-dept').classList.remove('hidden');
+        }
+
+        function openEditProg(id, code, name, level, deptId, year) {
+        document.getElementById('editProgId').value = id;
+        document.getElementById('editProgCode').value = code;
+        document.getElementById('editProgName').value = name;
+        document.getElementById('editProgLevel').value = level;
+        document.getElementById('editProgDept').value = deptId;
+        document.getElementById('editProgYear').value = year;
+        document.getElementById('modal-edit-prog').classList.remove('hidden');
+        }
+
+        function openEditCourse(id, code, title, credits) {
+        document.getElementById('editCourseId').value = id;
+        document.getElementById('editCourseCode').value = code;
+        document.getElementById('editCourseTitle').value = title;
+        document.getElementById('editCourseCredits').value = credits;
+        document.getElementById('modal-edit-course').classList.remove('hidden');
+        }
+
+        // -------------------------
+        // Edit Venue Map Logic
+        // -------------------------
+        let editMap;
+        let editMarker;
+
+        function openEditVenue(id, name, room, lat, lng) {
+        document.getElementById('editVenueId').value = id;
+        document.getElementById('editVenueName').value = name;
+        document.getElementById('editVenueRoom').value = room;
+            
+        const latInput = document.getElementById('editLatInput');
+        const lngInput = document.getElementById('editLngInput');
+        latInput.value = lat;
+        lngInput.value = lng;
+            
+        document.getElementById('modal-edit-venue').classList.remove('hidden');
+
+        // Initialize or update the Leaflet Map specifically for Edit
+        setTimeout(() => {
+        let defaultLat = lat ? parseFloat(lat) : 3.0738;
+        let defaultLng = lng ? parseFloat(lng) : 101.5183;
+        let zoomLevel = lat ? 16 : 13;
+
+        if (!editMap) {
+        editMap = L.map('editMap').setView([defaultLat, defaultLng], zoomLevel);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap'
+        }).addTo(editMap);
+
+        editMap.on('click', function (e) {
+        const newLat = e.latlng.lat.toFixed(6);
+        const newLng = e.latlng.lng.toFixed(6);
+        latInput.value = newLat;
+        lngInput.value = newLng;
+
+        if (editMarker) {
+        editMarker.setLatLng(e.latlng);
+        } else {
+        editMarker = L.marker(e.latlng).addTo(editMap);
+        }
+        });
+        } else {
+        editMap.setView([defaultLat, defaultLng], zoomLevel);
+        editMap.invalidateSize(); // Fix gray box rendering issues in modal
+        }
+
+        if (lat && lng) {
+        if (editMarker) {
+        editMarker.setLatLng([defaultLat, defaultLng]);
+        } else {
+        editMarker = L.marker([defaultLat, defaultLng]).addTo(editMap);
+        }
+        }
+        }, 200); // Slight delay allows modal CSS transitions to finish before rendering map
+        }
+    </script>
+}

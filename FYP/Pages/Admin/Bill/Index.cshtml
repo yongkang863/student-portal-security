@@ -1,0 +1,170 @@
+@page
+@model FYP.Pages.Admin.Bill.IndexModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Bill Management";
+}
+
+<div class="max-w-7xl mx-auto space-y-6">
+
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800 tracking-tight">Financial Bills</h1>
+            <p class="text-sm text-slate-500 mt-1">Manage and track all student payment requests by batches.</p>
+        </div>
+        <a href="/Admin/Bill/GenerateBill" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-900/20 transition-all flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            Generate New Bill
+        </a>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="p-4 bg-green-50 text-green-700 rounded-xl border border-green-200 flex items-center">
+            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            @Model.SuccessMessage
+        </div>
+    }
+
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead class="bg-slate-50 text-slate-600 border-b border-slate-200">
+                    <tr>
+                        <th class="px-6 py-4 font-bold uppercase tracking-wider text-xs">Bill Title & Category</th>
+                        <th class="px-6 py-4 font-bold uppercase tracking-wider text-xs">Amount (RM)</th>
+                        <th class="px-6 py-4 font-bold uppercase tracking-wider text-xs">Due Date</th>
+                        <th class="px-6 py-4 font-bold uppercase tracking-wider text-xs text-center">Targeted Students</th>
+                        <th class="px-6 py-4 font-bold uppercase tracking-wider text-xs">Payment Progress</th>
+                        <th class="px-6 py-4 font-bold uppercase tracking-wider text-xs text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+
+                    @if (Model.GroupedBills.Any())
+                    {
+                        foreach (var group in Model.GroupedBills)
+                        {
+                            var isOverdue = group.DueDate < DateOnly.FromDateTime(DateTime.Now);
+
+                            <tr class="hover:bg-slate-50 transition-colors">
+                                <td class="px-6 py-4">
+                                    <div class="font-bold text-slate-800">@group.Title</div>
+                                    <span class="inline-block mt-1 px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wider rounded">
+                                        @group.BillType
+                                    </span>
+                                </td>
+
+                                <td class="px-6 py-4 font-bold text-slate-800">
+                                    @group.Amount.ToString("0.00")
+                                </td>
+
+                                <td class="px-6 py-4">
+                                    <span class="@(isOverdue && group.TotalPending > 0 ? "text-red-600 font-bold" : "text-slate-600")">
+                                        @group.DueDate.ToString("dd MMM yyyy")
+                                    </span>
+                                    @if (isOverdue && group.TotalPending > 0)
+                                    {
+                                        <div class="text-[10px] text-red-500 font-bold uppercase mt-0.5">Overdue</div>
+                                    }
+                                </td>
+
+                                <td class="px-6 py-4 text-center">
+                                    <span class="px-3 py-1 bg-blue-50 text-blue-700 font-bold rounded-full border border-blue-200 text-xs">
+                                        @group.TotalStudents
+                                    </span>
+                                </td>
+
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center justify-between text-xs mb-1">
+                                        <span class="font-bold text-green-600">@group.TotalPaid Paid</span>
+                                        <span class="text-slate-500">@group.TotalPending Pending</span>
+                                    </div>
+                                    <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                                        @{
+                                            var percentPaid = group.TotalStudents > 0 ? (group.TotalPaid * 100) / group.TotalStudents : 0;
+                                        }
+                                        <div class="bg-green-500 h-1.5 rounded-full" style="width: @percentPaid%"></div>
+                                    </div>
+                                </td>
+
+                                <td class="px-6 py-4 text-center">
+                                    <div class="flex items-center justify-center gap-2">
+                                        <a href="/Admin/Bill/Detail?id=@group.FirstBillId" class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="View Target Details">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        </a>
+
+                                        <button onclick="openDeleteModal(@group.FirstBillId, '@group.Title.Replace("'", "\\'")', @group.TotalStudents, '@group.Amount.ToString("0.00")')" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete Entire Batch">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="px-6 py-12 text-center">
+                                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 text-slate-400 mb-4">
+                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                </div>
+                                <h3 class="text-lg font-bold text-slate-700">No Bills Found</h3>
+                                <p class="text-slate-500 mt-1 max-w-sm mx-auto">You haven't generated any bills yet. Click the button above to create your first payment request.</p>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="px-6 py-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between text-sm text-slate-500">
+            <span>Showing <strong>@Model.GroupedBills.Count</strong> batches.</span>
+        </div>
+
+    </div>
+</div>
+
+<div id="deleteModal" class="hidden fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+        <div class="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 text-red-600 mb-4 mx-auto">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        </div>
+
+        <h3 class="text-xl font-bold text-slate-800 text-center mb-2">Delete Entire Batch?</h3>
+        <p class="text-sm text-slate-500 text-center mb-6">Are you sure you want to delete this bill for <strong>all targeted students</strong>? This action cannot be undone.</p>
+
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-6 text-sm space-y-2">
+            <p><span class="font-bold text-slate-700">Title:</span> <span id="delTitle" class="text-slate-600"></span></p>
+            <p><span class="font-bold text-slate-700">Amount:</span> <span id="delAmount" class="text-slate-600"></span></p>
+            <p><span class="font-bold text-slate-700">Targeted Students:</span> <span id="delCount" class="text-red-600 font-bold"></span> records</p>
+        </div>
+
+        <form method="post" asp-page-handler="DeleteGroup">
+            <input type="hidden" name="id" id="deleteBillId" />
+            <div class="flex gap-3">
+                <button type="button" onclick="closeDeleteModal()" class="flex-1 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-all">Cancel</button>
+                <button type="submit" class="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-lg shadow-red-900/20 transition-all">Yes, Delete Batch</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Modified to accept batch details
+        function openDeleteModal(id, title, count, amount) {
+            document.getElementById('deleteBillId').value = id;
+            document.getElementById('delTitle').textContent = title;
+            document.getElementById('delCount').textContent = count;
+            document.getElementById('delAmount').textContent = 'RM ' + amount;
+
+            document.getElementById('deleteModal').classList.remove('hidden');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.add('hidden');
+        }
+    </script>
+}

@@ -1,0 +1,289 @@
+@page
+@model FYP.Pages.Admin.Academic.Advisory.IndexModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Academic Advisory";
+}
+
+<div class="space-y-6">
+
+    <div>
+        <h1 class="text-2xl font-bold font-serif text-slate-800">Manage Academic Advisory</h1>
+        <p class="text-sm text-slate-500 mt-1">Assign students and manage consultation details for academic advisors.</p>
+    </div>
+
+    @if (!string.IsNullOrEmpty(TempData["SuccessMessage"] as string))
+    {
+        <div class="p-4 bg-green-50 text-green-700 rounded-xl border border-green-200 flex items-center shadow-sm">
+            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            @TempData["SuccessMessage"]
+        </div>
+    }
+    @if (!string.IsNullOrEmpty(TempData["ErrorMessage"] as string))
+    {
+        <div class="p-4 bg-red-50 text-red-700 rounded-xl border border-red-200 flex items-center shadow-sm">
+            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <form method="get" id="filterForm" class="space-y-6">
+            
+            <div>
+                <h3 class="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2 mb-4"><i class="fa-solid fa-user-tie text-blue-500 mr-2"></i>Step 1: Select Advisor</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Department</label>
+                        <select asp-for="DeptId" asp-items="Model.DepartmentOptions" onchange="clearDownstream(['StaffId', 'ProgId', 'SessionJoined', 'TutorialGroup']); this.form.submit();" class="w-full px-4 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50">
+                            <option value="">-- Select Department --</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Staff / Lecturer</label>
+                        <select asp-for="StaffId" id="StaffId" asp-items="Model.StaffOptions" onchange="this.form.submit();" class="w-full px-4 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50" disabled="@(Model.DeptId == null ? "disabled" : null)">
+                            <option value="">-- Select Staff --</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.StaffId.HasValue)
+            {
+                <div>
+                    <h3 class="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2 mb-4 mt-2"><i class="fa-solid fa-filter text-blue-500 mr-2"></i>Step 2: Filter Students (Optional)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Programme</label>
+                            <select asp-for="ProgId" id="ProgId" asp-items="Model.ProgrammeOptions" onchange="this.form.submit();" class="w-full px-4 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50">
+                                <option value="">-- All Programmes --</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Session</label>
+                            <select asp-for="SessionJoined" id="SessionJoined" asp-items="Model.SessionOptions" onchange="this.form.submit();" class="w-full px-4 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50">
+                                <option value="">-- All Sessions --</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Tutorial Group</label>
+                            <select asp-for="TutorialGroup" id="TutorialGroup" asp-items="Model.TutorialGroupOptions" onchange="this.form.submit();" class="w-full px-4 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50">
+                                <option value="">-- All Groups --</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            }
+        </form>
+    </div>
+
+    @if (Model.StaffId.HasValue && Model.SelectedStaff != null)
+    {
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 animate-fade-in-up">
+            <div class="flex justify-between items-center mb-5">
+                <div>
+                    <h3 class="font-bold text-slate-800 text-lg">Advisory Information</h3>
+                    <p class="text-xs text-slate-500">Details displayed to students for consultation.</p>
+                </div>
+                <button type="button" onclick="openModal('advisoryModal')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold py-2 px-4 rounded-lg transition-colors flex items-center gap-2 text-sm border border-indigo-200">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                    Edit Details
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-50 rounded-xl p-5 border border-slate-100">
+                <div>
+                    <p class="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1"><i class="fa-solid fa-building mr-1"></i> Office Location</p>
+                    <p class="text-slate-800 font-medium text-sm">@(Model.CurrentAdvisory?.OfficeLocation ?? "Not Specified")</p>
+                </div>
+                <div>
+                    <p class="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1"><i class="fa-solid fa-phone mr-1"></i> Office Extension</p>
+                    <p class="text-slate-800 font-medium text-sm">@(Model.CurrentAdvisory?.OfficeExtension ?? "Not Specified")</p>
+                </div>
+                <div>
+                    <p class="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1"><i class="fa-regular fa-clock mr-1"></i> Consultation Hours</p>
+                    <p class="text-slate-800 font-medium text-sm">@(Model.CurrentAdvisory?.ConsultationHours ?? "Not Specified")</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden animate-fade-in-up mt-6">
+            
+            <form method="post" asp-page-handler="SaveAssignments">
+                <input type="hidden" name="DeptId" value="@Model.DeptId" />
+                <input type="hidden" name="StaffId" value="@Model.StaffId" />
+                <input type="hidden" name="ProgId" value="@Model.ProgId" />
+                <input type="hidden" name="SessionJoined" value="@Model.SessionJoined" />
+                <input type="hidden" name="TutorialGroup" value="@Model.TutorialGroup" />
+                
+                <input type="hidden" name="DisplayedStudentIds" value="@string.Join(",", Model.StudentList.Select(s => s.Uid))" />
+
+                <div class="bg-slate-800 p-5 flex justify-between items-center text-white">
+                    <div>
+                        <h3 class="font-bold text-lg">Assigning to: <span class="text-blue-300">@Model.SelectedStaff.FullName</span></h3>
+                        <p class="text-sm text-slate-300">Total students in view: @Model.StudentList.Count</p>
+                    </div>
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded-lg shadow-md transition-all flex items-center gap-2 text-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        Save Assignments
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-50 text-slate-500 border-b border-slate-200">
+                            <tr>
+                                <th class="px-6 py-4 w-12 text-center">
+                                    <input type="checkbox" id="selectAllCheckbox" onchange="toggleAllCheckboxes(this)" class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer" />
+                                </th>
+                                <th class="px-6 py-4 font-semibold">Student Info</th>
+                                <th class="px-6 py-4 font-semibold">Programme</th>
+                                <th class="px-6 py-4 font-semibold">Session & Group</th>
+                                <th class="px-6 py-4 font-semibold">Current Advisor Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            @if (Model.StudentList.Any())
+                            {
+                                @foreach (var student in Model.StudentList)
+                                {
+                                    <tr class="hover:bg-blue-50/50 transition-colors @(student.IsAssignedToCurrentStaff ? "bg-blue-50/30" : "")">
+                                        <td class="px-6 py-4 text-center">
+                                            <input type="checkbox" name="SelectedStudentIds" value="@student.Uid" class="student-checkbox w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer" @(student.IsAssignedToCurrentStaff ? "checked" : "") />
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <p class="font-bold text-slate-800">@student.FullName</p>
+                                            <p class="text-xs text-slate-500 font-mono">@student.UserId</p>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                                                @student.ProgrammeCode
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <p class="text-slate-700 font-medium text-xs mb-1">Session: @(student.SessionJoined?.ToString() ?? "N/A")</p>
+                                            <p class="text-slate-500 text-xs">Grp: @student.TutorialGroup</p>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            @if (student.IsAssignedToCurrentStaff)
+                                            {
+                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700">
+                                                    <i class="fa-solid fa-check-circle"></i> This Staff
+                                                </span>
+                                            }
+                                            else if (student.CurrentAdvisorName == "Unassigned")
+                                            {
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-500">
+                                                    Unassigned
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-orange-100 text-orange-700" title="Assigned to another staff">
+                                                    <i class="fa-solid fa-user-lock"></i> @student.CurrentAdvisorName
+                                                </span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="5" class="px-6 py-12 text-center text-slate-500">
+                                        <i class="fa-solid fa-users-slash text-3xl mb-3 text-slate-300 block"></i>
+                                        No students found matching the selected filters.
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+        </div>
+
+        <div id="advisoryModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm opacity-0 transition-opacity duration-300">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden transform scale-95 opacity-0 transition-all duration-300 advisoryModal-panel">
+                
+                <div class="bg-slate-50 border-b border-slate-200 px-6 py-4 flex justify-between items-center">
+                    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-pen-to-square text-indigo-600"></i> Edit Advisory Details
+                    </h3>
+                    <button type="button" onclick="closeModal('advisoryModal')" class="text-slate-400 hover:text-slate-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+
+                <form method="post" asp-page-handler="UpdateAdvisory" class="px-6 py-6 space-y-5">
+                    <input type="hidden" name="DeptId" value="@Model.DeptId" />
+                    <input type="hidden" name="StaffId" value="@Model.StaffId" />
+                    <input type="hidden" name="ProgId" value="@Model.ProgId" />
+                    <input type="hidden" name="SessionJoined" value="@Model.SessionJoined" />
+                    <input type="hidden" name="TutorialGroup" value="@Model.TutorialGroup" />
+
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Office Location</label>
+                        <input asp-for="AdvisoryEdit.OfficeLocation" maxlength="40" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="e.g. Block A, Room 302 (Max 40 chars)" />
+                        <span asp-validation-for="AdvisoryEdit.OfficeLocation" class="text-xs text-red-500 mt-1 block"></span>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Office Extension</label>
+                        <input asp-for="AdvisoryEdit.OfficeExtension" maxlength="20" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="e.g. Ext 1234 or +603... (Max 20 chars)" />
+                        <span asp-validation-for="AdvisoryEdit.OfficeExtension" class="text-xs text-red-500 mt-1 block"></span>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Consultation Hours</label>
+                        <textarea asp-for="AdvisoryEdit.ConsultationHours" maxlength="40" rows="2" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="e.g. Mon & Wed (2:00 PM - 4:00 PM) (Max 40 chars)"></textarea>
+                        <span asp-validation-for="AdvisoryEdit.ConsultationHours" class="text-xs text-red-500 mt-1 block"></span>
+                    </div>
+
+                    <div class="pt-4 flex justify-end gap-2 border-t border-slate-100">
+                        <button type="button" onclick="closeModal('advisoryModal')" class="px-4 py-2 text-slate-600 font-bold hover:bg-slate-100 rounded-lg transition-colors text-sm">Cancel</button>
+                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg shadow transition-colors text-sm">Save Details</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function clearDownstream(elementIds) {
+            elementIds.forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.value = '';
+            });
+        }
+
+        function toggleAllCheckboxes(source) {
+            const checkboxes = document.querySelectorAll('.student-checkbox');
+            checkboxes.forEach(cb => cb.checked = source.checked);
+        }
+
+        // Modal Logic
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            const panel = modal.querySelector('.' + modalId + '-panel');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                panel.classList.remove('opacity-0', 'scale-95');
+            }, 10);
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            const panel = modal.querySelector('.' + modalId + '-panel');
+            modal.classList.add('opacity-0');
+            panel.classList.add('opacity-0', 'scale-95');
+            setTimeout(() => {
+                modal.classList.remove('flex');
+                modal.classList.add('hidden');
+            }, 300);
+        }
+    </script>
+}
